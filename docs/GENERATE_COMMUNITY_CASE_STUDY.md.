@@ -1,0 +1,939 @@
+AI Development Orchestrator
+
+Generate Community Case Study
+
+You are operating as a technical case study writer and engineering narrative analyst for the AI Development Orchestrator (ADO) MVP.
+
+The ADO MVP implementation journey has already been reconstructed from repository evidence.
+
+Your objective is to transform the evidence-based build journey into public technical content that helps software developers understand and reproduce the engineering process.
+
+This is a technical education and community-sharing task.
+
+Do not modify the ADO implementation.
+
+Do not invent metrics.
+
+Do not exaggerate autonomous execution.
+
+Do not convert unknown information into facts.
+
+⸻
+
+1. Objective
+
+Create a complete public-facing technical case study explaining how the AI Development Orchestrator MVP moved from product idea to autonomous AI-assisted implementation.
+
+The case study should explain the process:
+
+Product Idea
+      ↓
+Vision
+      ↓
+Product Requirements
+      ↓
+System Architecture
+      ↓
+Component Design
+      ↓
+Execution Engine Design
+      ↓
+Context Engine Design
+      ↓
+Implementation Plan
+      ↓
+Atomic Engineering Tasks
+      ↓
+Claude Code Guardrails
+      ↓
+Autonomous Task Execution
+      ↓
+Build and Validation
+      ↓
+Repair
+      ↓
+Git Commit
+      ↓
+Next Task
+      ↓
+ADO MVP
+
+The primary audience is:
+
+* software engineers
+* senior engineers
+* architects
+* engineering managers
+* AI engineers
+* developers experimenting with AI coding agents
+
+The goal is not to promote AI hype.
+
+The goal is to document a reproducible AI-native engineering workflow.
+
+⸻
+
+2. Read-Only Product Rule
+
+Do not modify:
+
+* production source code
+* test source code
+* Gradle configuration
+* TASKS.md
+* IMPLEMENTATION_PLAN.md
+* CLAUDE.md
+* project architecture documents
+* Git history
+* .ado/ execution state
+
+You may only create or modify files inside:
+
+community/
+
+Do not create implementation commits.
+
+⸻
+
+3. Primary Evidence Sources
+
+Read:
+
+journey/BUILD_JOURNEY.md
+journey/EXECUTION_METRICS.md
+journey/FAILURE_ANALYSIS.md
+journey/HUMAN_INTERVENTIONS.md
+journey/LESSONS_LEARNED.md
+
+Also inspect the following when clarification is required:
+
+docs/01-vision.md
+docs/02-product-requirements.md
+docs/03-system-architecture.md
+docs/04-repository-structure.md
+docs/05-component-design.md
+docs/06-execution-engine.md
+docs/07-context-engine.md
+IMPLEMENTATION_PLAN.md
+TASKS.md
+CLAUDE.md
+START_AUTONOMOUS_EXECUTION.md
+
+Git history may be inspected to verify factual claims.
+
+The journey/ documents are the primary evidence base for execution claims.
+
+⸻
+
+4. Evidence Integrity
+
+Every execution claim must be supported by available evidence.
+
+Use the evidence classifications established during build journey extraction:
+
+* Confirmed
+* Strongly Inferred
+* Unknown
+
+Public content does not need to repeatedly display evidence labels.
+
+However, wording must reflect evidence certainty.
+
+For confirmed facts, use direct language.
+
+Example:
+
+The repository contains 157 implementation tasks.
+
+For strongly inferred observations, use qualified language.
+
+Example:
+
+The Git history suggests that the implementation required a corrective change during this stage.
+
+For unknown information, either omit the claim or explicitly state the limitation.
+
+Example:
+
+The exact number of agent repair attempts could not be reconstructed from retained execution evidence.
+
+Never turn an unknown into an estimate for storytelling purposes.
+
+⸻
+
+5. Core Narrative
+
+The central engineering idea is:
+
+AI coding agents are capable workers, but autonomous software delivery requires engineering management around the agent.
+
+The case study should explain the shift from:
+
+Human
+  ↓
+Prompt AI
+  ↓
+Review Code
+  ↓
+Run Build
+  ↓
+Explain Failure
+  ↓
+Prompt AI Again
+  ↓
+Choose Next Task
+  ↓
+Repeat
+
+to:
+
+Human Defines Product Intent
+          ↓
+Documentation Defines Engineering Intent
+          ↓
+Deterministic Task Backlog
+          ↓
+Execution Guardrails
+          ↓
+AI Coding Agent Executes One Task
+          ↓
+Validation
+          ↓
+Repair
+          ↓
+Commit
+          ↓
+Next Executable Task
+
+The important lesson is not:
+
+AI built an entire application from one prompt.
+
+Do not use that framing.
+
+The intended lesson is:
+
+A structured engineering execution system allowed an AI coding agent to work through a documented backlog with reduced continuous human task management.
+
+⸻
+
+6. Explain the Origin of ADO
+
+Explain the original problem.
+
+AI coding agents can:
+
+* generate code
+* generate tests
+* inspect repositories
+* repair many implementation failures
+
+But developers still frequently manage:
+
+* next-task selection
+* context assembly
+* documentation retrieval
+* build execution
+* failure interpretation
+* repair prompting
+* quality validation
+* progress tracking
+* Git workflow
+
+Explain that this observation led to the ADO concept:
+
+AI agents are workers. ADO is the engineering manager.
+
+Do not claim ADO replaces engineering managers.
+
+Explain this as a software orchestration metaphor and product design principle.
+
+⸻
+
+7. Explain the Documentation-First Process
+
+Document the actual specification sequence:
+
+Vision Document
+      ↓
+Product Requirements
+      ↓
+System Architecture
+      ↓
+Repository Structure
+      ↓
+Component Design
+      ↓
+Execution Engine Design
+      ↓
+Context Engine Design
+
+Explain why documentation was treated as executable engineering context.
+
+Discuss:
+
+* architecture boundaries
+* source-of-truth hierarchy
+* product scope protection
+* vendor neutrality
+* quality expectations
+* deterministic execution rules
+
+Explain how documentation reduced the need to repeatedly explain the project to the coding agent.
+
+Use actual ADO documentation as evidence.
+
+⸻
+
+8. Explain Task Decomposition
+
+Explain how the implementation plan became TASKS.md.
+
+Use actual task metrics from:
+
+journey/EXECUTION_METRICS.md
+
+Discuss the task contract.
+
+A task should contain, where supported by the actual backlog:
+
+* task ID
+* title
+* description
+* dependencies
+* expected files
+* acceptance criteria
+* test requirements
+* status
+
+Explain the principle:
+
+One task should be small enough for one focused AI coding session and one reviewable Git commit.
+
+Explain deterministic task selection.
+
+The next task is selected based on:
+
+* task order
+* task status
+* completed dependencies
+
+Do not imply sophisticated dynamic planning if the MVP used deterministic sequential selection.
+
+⸻
+
+9. Explain CLAUDE.md
+
+Explain the role of CLAUDE.md.
+
+Describe it as the repository-level engineering contract for the coding agent.
+
+Explain the major guardrails:
+
+* documentation authority
+* MVP scope
+* architecture boundaries
+* one task at a time
+* no future-task implementation
+* no unrelated refactoring
+* tests with implementation
+* mandatory validation
+* one focused commit per task
+* explicit blocking conditions
+
+Explain the difference between:
+
+CLAUDE.md
+
+and:
+
+START_AUTONOMOUS_EXECUTION.md
+
+Use this distinction:
+
+CLAUDE.md
+    ↓
+Permanent engineering rules
+START_AUTONOMOUS_EXECUTION.md
+    ↓
+Execution start and continuation instruction
+
+Do not describe prompt length as the key innovation.
+
+Focus on persistent engineering constraints.
+
+⸻
+
+10. Explain Autonomous Execution
+
+Reconstruct the actual execution model from evidence.
+
+Explain the lifecycle:
+
+Read Backlog
+      ↓
+Select Executable Task
+      ↓
+Validate Dependencies
+      ↓
+Mark In Progress
+      ↓
+Inspect Existing Code
+      ↓
+Implement Minimal Change
+      ↓
+Add Tests
+      ↓
+Run Validation
+      ↓
+Repair Current Task Failures
+      ↓
+Inspect Scope
+      ↓
+Mark Done
+      ↓
+Create Focused Commit
+      ↓
+Reload Backlog
+      ↓
+Next Task
+
+Use actual execution results and metrics.
+
+Do not state that Claude executed continuously without interruption unless supported by evidence.
+
+Do not claim every task followed the lifecycle perfectly unless evidence supports the claim.
+
+Document deviations.
+
+⸻
+
+11. Explain Failures
+
+Use:
+
+journey/FAILURE_ANALYSIS.md
+
+Failures are an important part of the case study.
+
+Discuss:
+
+* confirmed failure categories
+* repeated failure patterns
+* repair events
+* tasks with high failure activity
+* failures that could not be reconstructed
+
+Explain what failures reveal about AI coding agents.
+
+Potential themes should only be used when supported by evidence:
+
+* context gaps
+* dependency misunderstanding
+* architecture boundary drift
+* compilation repair
+* test repair
+* implementation assumptions
+* scope expansion
+
+Do not manufacture dramatic failure stories.
+
+Do not hide failed execution events to improve the narrative.
+
+⸻
+
+12. Explain Human Intervention
+
+Use:
+
+journey/HUMAN_INTERVENTIONS.md
+
+Document confirmed human interventions.
+
+Explain:
+
+* why intervention occurred
+* what decision the agent could not safely make
+* how execution continued
+* whether better documentation could have prevented the intervention
+
+Do not claim zero human intervention unless evidence proves it.
+
+If session evidence is incomplete, explicitly state that intervention analysis is limited by retained execution evidence.
+
+The case study should present human intervention as engineering data.
+
+⸻
+
+13. Explain the Git Strategy
+
+Explain the one-task-per-commit approach.
+
+Discuss why this improved:
+
+* traceability
+* task-to-code mapping
+* execution reconstruction
+* failure analysis
+* architecture review
+* community learning
+
+Use actual Git metrics.
+
+Explain that Git history became an engineering event log.
+
+Do not claim Git captured agent reasoning.
+
+Clearly state that Git captures repository evolution, not the complete internal reasoning of the coding agent.
+
+⸻
+
+14. Explain Context Engineering
+
+Use:
+
+docs/07-context-engine.md
+journey/BUILD_JOURNEY.md
+journey/LESSONS_LEARNED.md
+
+Explain the principle:
+
+More context is not always better context.
+
+Describe the ADO context model:
+
+* active story
+* relevant product requirements
+* architecture contracts
+* related source files
+* related tests
+* dependency context
+
+Explain why future stories and unrelated repository content should be excluded.
+
+Separate:
+
+* the ADO product’s Context Builder design
+* the context strategy used while building the ADO MVP
+
+Do not imply the final ADO Context Builder orchestrated its own creation unless evidence proves that.
+
+This distinction is mandatory.
+
+⸻
+
+15. Explain the Bootstrap Paradox
+
+Include a section discussing the bootstrap nature of the project.
+
+ADO is intended to orchestrate AI coding agents.
+
+However, the ADO MVP itself was built using a documentation-driven autonomous Claude Code execution process before the finished ADO platform existed.
+
+Explain this clearly.
+
+Suggested framing:
+
+I used a manual version of the orchestration philosophy to build the software intended to automate that philosophy.
+
+Discuss which orchestration responsibilities were represented through:
+
+* documentation
+* TASKS.md
+* CLAUDE.md
+* the autonomous execution prompt
+* Claude Code
+* Git
+* Gradle validation
+
+Do not claim the ADO MVP built itself.
+
+⸻
+
+16. Generate Community Content
+
+Create:
+
+community/
+├── CASE_STUDY.md
+├── LINKEDIN_SERIES.md
+├── TECHNICAL_ARTICLE.md
+├── README_JOURNEY_SECTION.md
+└── COMMUNITY_METRICS.md
+
+⸻
+
+17. CASE_STUDY.md
+
+Title:
+
+# I Stopped Treating AI Coding Agents Like Chatbots
+## Building the AI Development Orchestrator MVP
+
+Required structure:
+
+# I Stopped Treating AI Coding Agents Like Chatbots
+## The Experiment
+## The Problem Was Not Code Generation
+## AI Agents Are Workers
+## Documentation Became the Engineering Contract
+## From Architecture to Atomic Tasks
+## 157 Tasks
+Use the actual task count if different.
+## CLAUDE.md: Defining the Engineering Guardrails
+## Starting Autonomous Execution
+## The Execution Loop
+## What Actually Happened
+## Where the Agent Failed
+## Where I Had to Intervene
+## Git Became the Engineering Event Log
+## Context Engineering Lessons
+## The Bootstrap Paradox
+## The Final MVP
+## What I Would Change
+## What Other Developers Can Reproduce
+## Final Thoughts
+
+Use first-person narrative where appropriate.
+
+Write as an experienced software engineer sharing an experiment.
+
+Avoid marketing language.
+
+Avoid exaggerated claims.
+
+Target length:
+
+2,500–4,000 words.
+
+⸻
+
+18. LINKEDIN_SERIES.md
+
+Create a 10-part LinkedIn series.
+
+Each post should stand independently while contributing to the overall story.
+
+Series structure:
+
+Post 1
+The problem with AI coding agents is not code generation
+Post 2
+I started treating AI agents as engineering workers
+Post 3
+Why I wrote architecture before asking AI to code
+Post 4
+How the implementation became atomic engineering tasks
+Post 5
+What CLAUDE.md changed
+Post 6
+Starting the autonomous Claude Code execution
+Post 7
+What failed
+Post 8
+Human intervention and AI engineering boundaries
+Post 9
+Git history as an AI engineering event log
+Post 10
+What I learned building the ADO MVP
+
+For every post include:
+
+## Post N — Title
+### Post
+<LinkedIn content>
+### Evidence Used
+- evidence source
+- metric source
+- task or commit references when relevant
+
+The Evidence Used section is internal authoring metadata.
+
+It may be removed before publication.
+
+Do not include unsupported metrics for engagement.
+
+Avoid fake questions and engagement bait.
+
+Target post length:
+
+150–350 words.
+
+⸻
+
+19. TECHNICAL_ARTICLE.md
+
+Create a deeper engineering article.
+
+Title:
+
+# From PRD to 157 Tasks: Designing an Autonomous AI Coding Workflow
+
+Use the actual task count if different.
+
+Required sections:
+
+## Introduction
+## The Missing Layer Around AI Coding Agents
+## The Engineering Manager Metaphor
+## Specification as Machine Context
+## Designing the Documentation Hierarchy
+## Architecture Before Implementation
+## Task Decomposition as an AI Reliability Mechanism
+## The Task Contract
+## Repository-Level Agent Guardrails
+## The Autonomous Execution Algorithm
+## Build, Failure, and Repair
+## Why One Task Per Commit Mattered
+## Context Engineering
+## Failure Analysis
+## Human Intervention Analysis
+## The Bootstrap Problem
+## Results
+## Limitations of the Experiment
+## A Reproducible Workflow
+## Conclusion
+
+Target audience:
+
+Senior engineers and architects.
+
+Target length:
+
+3,000–5,000 words.
+
+Prefer technical precision over storytelling.
+
+⸻
+
+20. README_JOURNEY_SECTION.md
+
+Create a reusable README section.
+
+Required structure:
+
+## How ADO Was Built
+### The Experiment
+### Specification Pipeline
+### Task Decomposition
+### Autonomous Execution
+### Engineering Guardrails
+### Results
+### Build Journey
+### Reproduce the Process
+
+Keep this concise.
+
+Target length:
+
+500–1,000 words.
+
+Do not duplicate the full case study.
+
+Reference repository-relative files using Markdown links where appropriate.
+
+⸻
+
+21. COMMUNITY_METRICS.md
+
+Create a public-safe metrics summary.
+
+Required structure:
+
+# ADO MVP Community Metrics
+## Experiment Summary
+## Tasks
+## Git History
+## Codebase
+## Tests
+## Failures
+## Repairs
+## Human Intervention
+## Execution Window
+## Autonomous Execution
+## Evidence Limitations
+
+Only include metrics supported by:
+
+journey/EXECUTION_METRICS.md
+
+Do not add estimated:
+
+* token usage
+* cost
+* active development hours
+* agent reasoning steps
+
+unless directly supported by retained evidence.
+
+Explain the difference between:
+
+Observed Git implementation window
+
+and:
+
+Active engineering time
+
+⸻
+
+22. Writing Style
+
+Write in clear technical English.
+
+The author is an experienced backend software engineer exploring AI-native engineering workflows.
+
+The tone should be:
+
+* practical
+* curious
+* technical
+* evidence-driven
+* reflective
+
+Avoid:
+
+* AI hype
+* marketing claims
+* exaggerated autonomy claims
+* motivational clichés
+* generic thought-leadership language
+* excessive emojis
+* engagement bait
+
+Do not use phrases such as:
+
+* AI changed everything
+* software engineering is dead
+* developers will be replaced
+* built an entire product with one prompt
+* zero human involvement
+
+unless directly quoting and criticizing those claims.
+
+⸻
+
+23. Preserve the Author’s Core Insight
+
+The following idea should remain central throughout the content:
+
+The challenge was not getting an AI agent to write code. The challenge was building an engineering process around the agent so it could determine what to work on next, operate within architecture boundaries, validate its work, and continue execution.
+
+A second important insight is:
+
+Prompt engineering alone was not enough. Documentation structure, task decomposition, context boundaries, validation, and Git discipline became part of the AI execution system.
+
+Do not turn the case study into a Claude Code tutorial.
+
+Claude Code is the coding agent used in the experiment.
+
+The engineering process is the subject of the case study.
+
+⸻
+
+24. Public Sharing Safety
+
+Before generating public content, remove or redact:
+
+* credentials
+* API keys
+* tokens
+* private repository URLs
+* employer information
+* internal company information
+* local machine usernames
+* personal filesystem paths
+* unrelated personal information
+
+Use:
+
+[REDACTED]
+
+when necessary.
+
+Do not expose Claude Code session content containing unrelated private information.
+
+⸻
+
+25. Factual Review
+
+Before completing:
+
+1. Verify task counts.
+2. Verify commit counts.
+3. Verify failure counts.
+4. Verify repair counts.
+5. Verify human intervention claims.
+6. Verify implementation timeline.
+7. Verify architecture component names.
+8. Verify all execution claims against journey evidence.
+9. Remove unsupported claims.
+10. Review all content for sensitive information.
+
+If the five community documents contain conflicting metrics, correct them.
+
+The same metric must be represented consistently across all documents.
+
+⸻
+
+26. Repository Verification
+
+Before completion:
+
+1. Run git status.
+2. Confirm only files under community/ were created or modified by this task.
+3. Confirm production code was not modified.
+4. Confirm tests were not modified.
+5. Confirm TASKS.md was not modified.
+6. Confirm project documentation was not modified.
+7. Confirm Git history was not rewritten.
+
+Do not commit the generated community documents unless explicitly instructed by the human.
+
+⸻
+
+27. Final Report
+
+After generating all documents, report:
+
+Community Case Study Generation Complete
+Documents Generated:
+- community/CASE_STUDY.md
+- community/LINKEDIN_SERIES.md
+- community/TECHNICAL_ARTICLE.md
+- community/README_JOURNEY_SECTION.md
+- community/COMMUNITY_METRICS.md
+Evidence Sources:
+- journey/BUILD_JOURNEY.md
+- journey/EXECUTION_METRICS.md
+- journey/FAILURE_ANALYSIS.md
+- journey/HUMAN_INTERVENTIONS.md
+- journey/LESSONS_LEARNED.md
+Task Count Used:
+Commit Count Used:
+Confirmed Failure Count:
+Confirmed Human Intervention Count:
+Unsupported Claims Added: No
+Production Code Modified: No
+Git History Modified: No
+Evidence Limitations:
+<summary>
+
+⸻
+
+28. Start
+
+Begin community case study generation now.
+
+Read all five journey/ evidence documents.
+
+Verify critical metrics against repository evidence when necessary.
+
+Generate the five required documents under community/.
+
+Tell the actual ADO MVP engineering story.
+
+Preserve failures and limitations.
+
+Do not exaggerate autonomous execution.
+
+Do not modify the ADO implementation.
