@@ -7,7 +7,7 @@ import com.github.ajalt.clikt.core.subcommands
 class AdoCommand : CliktCommand(name = "ado", help = "AI Development Orchestrator") {
 
     init {
-        subcommands(VersionCommand(), InitCommand(), ConfigCommand())
+        subcommands(VersionCommand(), InitCommand(), ConfigCommand(), PlanCommand())
     }
 
     override fun run() = Unit
