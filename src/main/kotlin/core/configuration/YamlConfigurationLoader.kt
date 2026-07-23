@@ -16,6 +16,7 @@ private val logger = KotlinLogging.logger {}
 /** [ConfigurationLoader] backed by Jackson YAML. */
 class YamlConfigurationLoader(
     private val mapper: ObjectMapper = ObjectMapper(YAMLFactory()).registerKotlinModule(),
+    private val validator: ConfigurationValidator = DefaultConfigurationValidator(),
 ) : ConfigurationLoader {
 
     override fun exists(path: Path): Boolean = path.exists() && path.isRegularFile()
@@ -27,7 +28,7 @@ class YamlConfigurationLoader(
 
         logger.debug { "Loading configuration from $path" }
 
-        return try {
+        val config = try {
             val content = Files.readString(path)
             if (content.isBlank()) {
                 AdoConfiguration()
@@ -37,5 +38,14 @@ class YamlConfigurationLoader(
         } catch (e: Exception) {
             throw ConfigurationException("Failed to parse configuration file: $path", e)
         }
+
+        val result = validator.validate(config)
+        if (!result.isValid) {
+            throw ConfigurationException(
+                "Configuration file is invalid: $path\n" + result.errors.joinToString("\n") { "  - $it" },
+            )
+        }
+
+        return config
     }
 }

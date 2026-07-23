@@ -91,4 +91,21 @@ class YamlConfigurationLoaderTest : FunSpec({
 
         loader.exists(file) shouldBe true
     }
+
+    test("load throws ConfigurationException when the parsed configuration fails validation") {
+        val dir = Files.createTempDirectory("ado-config-test")
+        val file = dir.resolve("config.yaml")
+        Files.writeString(
+            file,
+            """
+            repair:
+              retries: -3
+            """.trimIndent(),
+        )
+
+        val exception = shouldThrow<ConfigurationException> {
+            loader.load(file)
+        }
+        exception.message shouldBe "Configuration file is invalid: $file\n  - repair.retries must not be negative, got -3"
+    }
 })
