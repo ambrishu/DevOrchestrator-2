@@ -1,5 +1,10 @@
 package core.common.di
 
+import adapters.claude.ClaudeCodeAdapter
+import adapters.claude.ClaudeCodeInvoker
+import core.agent.AgentAdapter
+import core.agent.DefaultPromptBuilder
+import core.agent.PromptBuilder
 import core.configuration.ConfigurationLoader
 import core.configuration.ConfigurationValidator
 import core.configuration.DefaultConfigurationValidator
@@ -25,6 +30,8 @@ import core.progress.ProgressTracker
 import core.repository.DefaultRepositoryLoader
 import core.repository.RepositoryLoader
 import org.koin.dsl.module
+import utils.DefaultProcessExecutor
+import utils.ProcessExecutor
 
 /** Wires foundation-level singletons used by the CLI. */
 val appModule = module {
@@ -44,5 +51,11 @@ val appModule = module {
     single<SourceSelector> { DefaultSourceSelector() }
     single<ContextBuilder> {
         DefaultContextBuilder(repositoryScanner = get(), documentationLoader = get(), sourceSelector = get())
+    }
+
+    single<ProcessExecutor> { DefaultProcessExecutor() }
+    single<PromptBuilder> { DefaultPromptBuilder() }
+    single<AgentAdapter> {
+        ClaudeCodeAdapter(promptBuilder = get(), invoker = ClaudeCodeInvoker(processExecutor = get()))
     }
 }

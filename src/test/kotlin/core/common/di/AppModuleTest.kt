@@ -1,5 +1,9 @@
 package core.common.di
 
+import adapters.claude.ClaudeCodeAdapter
+import core.agent.AgentAdapter
+import core.agent.DefaultPromptBuilder
+import core.agent.PromptBuilder
 import core.configuration.ConfigurationLoader
 import core.configuration.YamlConfigurationLoader
 import core.context.ContextBuilder
@@ -25,6 +29,8 @@ import core.repository.RepositoryLoader
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.types.shouldBeInstanceOf
 import org.koin.dsl.koinApplication
+import utils.DefaultProcessExecutor
+import utils.ProcessExecutor
 
 class AppModuleTest : FunSpec({
 
@@ -91,6 +97,24 @@ class AppModuleTest : FunSpec({
     test("appModule resolves a ContextBuilder") {
         val koin = koinApplication { modules(appModule) }.koin
         koin.get<ContextBuilder>().shouldBeInstanceOf<DefaultContextBuilder>()
+        koin.close()
+    }
+
+    test("appModule resolves a ProcessExecutor") {
+        val koin = koinApplication { modules(appModule) }.koin
+        koin.get<ProcessExecutor>().shouldBeInstanceOf<DefaultProcessExecutor>()
+        koin.close()
+    }
+
+    test("appModule resolves a PromptBuilder") {
+        val koin = koinApplication { modules(appModule) }.koin
+        koin.get<PromptBuilder>().shouldBeInstanceOf<DefaultPromptBuilder>()
+        koin.close()
+    }
+
+    test("appModule resolves an AgentAdapter") {
+        val koin = koinApplication { modules(appModule) }.koin
+        koin.get<AgentAdapter>().shouldBeInstanceOf<ClaudeCodeAdapter>()
         koin.close()
     }
 })

@@ -36,6 +36,18 @@ class AdoExceptionTest : FunSpec({
         exception.message shouldBe "bad context"
     }
 
+    test("ProcessExecutionException is an AdoException") {
+        val exception = ProcessExecutionException("could not start process")
+        exception.shouldBeInstanceOf<AdoException>()
+        exception.message shouldBe "could not start process"
+    }
+
+    test("AgentInvocationException is an AdoException") {
+        val exception = AgentInvocationException("agent failed")
+        exception.shouldBeInstanceOf<AdoException>()
+        exception.message shouldBe "agent failed"
+    }
+
     test("exceptions preserve their cause") {
         val cause = IllegalStateException("root cause")
         val exception = ConfigurationException("wrapped", cause)

@@ -17,6 +17,7 @@ class AdoCommandTest : FunSpec({
         result.output shouldContain "plan"
         result.output shouldContain "progress"
         result.output shouldContain "context"
+        result.output shouldContain "agent"
     }
 
     test("root command dispatches to the version subcommand") {
