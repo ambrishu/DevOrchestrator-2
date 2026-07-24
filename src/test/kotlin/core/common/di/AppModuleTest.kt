@@ -2,6 +2,14 @@ package core.common.di
 
 import core.configuration.ConfigurationLoader
 import core.configuration.YamlConfigurationLoader
+import core.context.ContextBuilder
+import core.context.DefaultContextBuilder
+import core.context.DefaultRepositoryScanner
+import core.context.DefaultSourceSelector
+import core.context.DocumentationLoader
+import core.context.FileDocumentationLoader
+import core.context.RepositoryScanner
+import core.context.SourceSelector
 import core.planner.DefaultDependencyResolver
 import core.planner.DefaultStoryPlanner
 import core.planner.DependencyResolver
@@ -59,6 +67,30 @@ class AppModuleTest : FunSpec({
     test("appModule resolves a ProgressTracker") {
         val koin = koinApplication { modules(appModule) }.koin
         koin.get<ProgressTracker>().shouldBeInstanceOf<FileProgressTracker>()
+        koin.close()
+    }
+
+    test("appModule resolves a RepositoryScanner") {
+        val koin = koinApplication { modules(appModule) }.koin
+        koin.get<RepositoryScanner>().shouldBeInstanceOf<DefaultRepositoryScanner>()
+        koin.close()
+    }
+
+    test("appModule resolves a DocumentationLoader") {
+        val koin = koinApplication { modules(appModule) }.koin
+        koin.get<DocumentationLoader>().shouldBeInstanceOf<FileDocumentationLoader>()
+        koin.close()
+    }
+
+    test("appModule resolves a SourceSelector") {
+        val koin = koinApplication { modules(appModule) }.koin
+        koin.get<SourceSelector>().shouldBeInstanceOf<DefaultSourceSelector>()
+        koin.close()
+    }
+
+    test("appModule resolves a ContextBuilder") {
+        val koin = koinApplication { modules(appModule) }.koin
+        koin.get<ContextBuilder>().shouldBeInstanceOf<DefaultContextBuilder>()
         koin.close()
     }
 })

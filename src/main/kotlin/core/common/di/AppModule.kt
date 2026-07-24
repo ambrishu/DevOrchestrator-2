@@ -4,6 +4,14 @@ import core.configuration.ConfigurationLoader
 import core.configuration.ConfigurationValidator
 import core.configuration.DefaultConfigurationValidator
 import core.configuration.YamlConfigurationLoader
+import core.context.ContextBuilder
+import core.context.DefaultContextBuilder
+import core.context.DefaultRepositoryScanner
+import core.context.DefaultSourceSelector
+import core.context.DocumentationLoader
+import core.context.FileDocumentationLoader
+import core.context.RepositoryScanner
+import core.context.SourceSelector
 import core.planner.DefaultDependencyResolver
 import core.planner.DefaultStoryPlanner
 import core.planner.DependencyResolver
@@ -30,4 +38,11 @@ val appModule = module {
     single<StoryPlanner> { DefaultStoryPlanner(dependencyResolver = get()) }
 
     single<ProgressTracker> { FileProgressTracker() }
+
+    single<RepositoryScanner> { DefaultRepositoryScanner() }
+    single<DocumentationLoader> { FileDocumentationLoader() }
+    single<SourceSelector> { DefaultSourceSelector() }
+    single<ContextBuilder> {
+        DefaultContextBuilder(repositoryScanner = get(), documentationLoader = get(), sourceSelector = get())
+    }
 }
