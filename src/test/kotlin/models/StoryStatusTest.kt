@@ -22,4 +22,15 @@ class StoryStatusTest : FunSpec({
     test("fromToken returns null for an unrecognized token") {
         StoryStatus.fromToken("archived").shouldBeNull()
     }
+
+    test("toToken renders the snake_case form used in YAML and markdown") {
+        StoryStatus.IN_PROGRESS.toToken() shouldBe "in_progress"
+        StoryStatus.DONE.toToken() shouldBe "done"
+    }
+
+    test("every status round-trips through fromToken(toToken())") {
+        StoryStatus.entries.forEach { status ->
+            StoryStatus.fromToken(status.toToken()) shouldBe status
+        }
+    }
 })

@@ -12,6 +12,8 @@ import core.planner.StoryLoader
 import core.planner.StoryParser
 import core.planner.StoryPlanner
 import core.planner.TasksFileLoader
+import core.progress.FileProgressTracker
+import core.progress.ProgressTracker
 import core.repository.DefaultRepositoryLoader
 import core.repository.RepositoryLoader
 import org.koin.dsl.module
@@ -26,4 +28,6 @@ val appModule = module {
     single<StoryLoader> { TasksFileLoader(parser = get()) }
     single<DependencyResolver> { DefaultDependencyResolver() }
     single<StoryPlanner> { DefaultStoryPlanner(dependencyResolver = get()) }
+
+    single<ProgressTracker> { FileProgressTracker() }
 }

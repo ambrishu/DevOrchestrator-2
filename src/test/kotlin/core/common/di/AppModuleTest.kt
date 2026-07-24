@@ -10,6 +10,8 @@ import core.planner.StoryLoader
 import core.planner.StoryParser
 import core.planner.StoryPlanner
 import core.planner.TasksFileLoader
+import core.progress.FileProgressTracker
+import core.progress.ProgressTracker
 import core.repository.DefaultRepositoryLoader
 import core.repository.RepositoryLoader
 import io.kotest.core.spec.style.FunSpec
@@ -51,6 +53,12 @@ class AppModuleTest : FunSpec({
     test("appModule resolves a StoryPlanner") {
         val koin = koinApplication { modules(appModule) }.koin
         koin.get<StoryPlanner>().shouldBeInstanceOf<DefaultStoryPlanner>()
+        koin.close()
+    }
+
+    test("appModule resolves a ProgressTracker") {
+        val koin = koinApplication { modules(appModule) }.koin
+        koin.get<ProgressTracker>().shouldBeInstanceOf<FileProgressTracker>()
         koin.close()
     }
 })

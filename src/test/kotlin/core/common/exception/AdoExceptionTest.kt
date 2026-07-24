@@ -24,6 +24,12 @@ class AdoExceptionTest : FunSpec({
         exception.message shouldBe "bad story"
     }
 
+    test("ProgressException is an AdoException") {
+        val exception = ProgressException("bad progress")
+        exception.shouldBeInstanceOf<AdoException>()
+        exception.message shouldBe "bad progress"
+    }
+
     test("exceptions preserve their cause") {
         val cause = IllegalStateException("root cause")
         val exception = ConfigurationException("wrapped", cause)
