@@ -14,6 +14,8 @@ import core.context.DocumentationLoader
 import core.context.FileDocumentationLoader
 import core.context.RepositoryScanner
 import core.context.SourceSelector
+import core.execution.DefaultExecutionEngine
+import core.execution.ExecutionEngine
 import core.planner.DefaultDependencyResolver
 import core.planner.DefaultStoryPlanner
 import core.planner.DependencyResolver
@@ -115,6 +117,12 @@ class AppModuleTest : FunSpec({
     test("appModule resolves an AgentAdapter") {
         val koin = koinApplication { modules(appModule) }.koin
         koin.get<AgentAdapter>().shouldBeInstanceOf<ClaudeCodeAdapter>()
+        koin.close()
+    }
+
+    test("appModule resolves an ExecutionEngine") {
+        val koin = koinApplication { modules(appModule) }.koin
+        koin.get<ExecutionEngine>().shouldBeInstanceOf<DefaultExecutionEngine>()
         koin.close()
     }
 })

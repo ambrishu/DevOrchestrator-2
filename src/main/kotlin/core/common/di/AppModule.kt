@@ -17,6 +17,8 @@ import core.context.DocumentationLoader
 import core.context.FileDocumentationLoader
 import core.context.RepositoryScanner
 import core.context.SourceSelector
+import core.execution.DefaultExecutionEngine
+import core.execution.ExecutionEngine
 import core.planner.DefaultDependencyResolver
 import core.planner.DefaultStoryPlanner
 import core.planner.DependencyResolver
@@ -57,5 +59,15 @@ val appModule = module {
     single<PromptBuilder> { DefaultPromptBuilder() }
     single<AgentAdapter> {
         ClaudeCodeAdapter(promptBuilder = get(), invoker = ClaudeCodeInvoker(processExecutor = get()))
+    }
+
+    single<ExecutionEngine> {
+        DefaultExecutionEngine(
+            storyLoader = get(),
+            storyPlanner = get(),
+            progressTracker = get(),
+            contextBuilder = get(),
+            agentAdapter = get(),
+        )
     }
 }
