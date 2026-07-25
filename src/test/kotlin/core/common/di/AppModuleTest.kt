@@ -28,6 +28,8 @@ import core.planner.StoryPlanner
 import core.planner.TasksFileLoader
 import core.progress.FileProgressTracker
 import core.progress.ProgressTracker
+import core.repair.DefaultFailureAnalyzer
+import core.repair.FailureAnalyzer
 import core.repository.DefaultRepositoryLoader
 import core.repository.RepositoryLoader
 import io.kotest.core.spec.style.FunSpec
@@ -131,6 +133,12 @@ class AppModuleTest : FunSpec({
     test("appModule resolves a BuildExecutor") {
         val koin = koinApplication { modules(appModule) }.koin
         koin.get<BuildExecutor>().shouldBeInstanceOf<DefaultBuildExecutor>()
+        koin.close()
+    }
+
+    test("appModule resolves a FailureAnalyzer") {
+        val koin = koinApplication { modules(appModule) }.koin
+        koin.get<FailureAnalyzer>().shouldBeInstanceOf<DefaultFailureAnalyzer>()
         koin.close()
     }
 })

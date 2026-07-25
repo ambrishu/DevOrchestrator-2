@@ -7,7 +7,7 @@ import com.github.ajalt.clikt.core.subcommands
 class BuildCommand : CliktCommand(name = "build", help = "Execute the project build") {
 
     init {
-        subcommands(RunBuildCommand())
+        subcommands(RunBuildCommand(), AnalyzeBuildCommand())
     }
 
     override fun run() = Unit

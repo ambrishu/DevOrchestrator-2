@@ -7,10 +7,11 @@ import io.kotest.matchers.string.shouldContain
 
 class BuildCommandTest : FunSpec({
 
-    test("--help lists the run subcommand") {
+    test("--help lists the run and analyze subcommands") {
         val result = BuildCommand().test(listOf("--help"))
 
         result.statusCode shouldBe 0
         result.output shouldContain "run"
+        result.output shouldContain "analyze"
     }
 })
