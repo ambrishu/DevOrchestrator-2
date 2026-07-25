@@ -101,6 +101,12 @@ val appModule = module {
             progressTracker = get(),
             contextBuilder = get(),
             agentAdapter = get(),
+            buildExecutor = get(),
+            repairLoop = get(),
+            qualityGateEngine = get(),
+            gitManager = get(),
+            commitMessageFormatter = get(),
+            configurationLoader = get(),
         )
     }
 }
