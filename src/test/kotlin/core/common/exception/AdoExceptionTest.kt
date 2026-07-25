@@ -60,6 +60,12 @@ class AdoExceptionTest : FunSpec({
         exception.message shouldBe "git status failed"
     }
 
+    test("ReviewFailureException is an AdoException") {
+        val exception = ReviewFailureException("review agent failed")
+        exception.shouldBeInstanceOf<AdoException>()
+        exception.message shouldBe "review agent failed"
+    }
+
     test("exceptions preserve their cause") {
         val cause = IllegalStateException("root cause")
         val exception = ConfigurationException("wrapped", cause)

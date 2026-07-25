@@ -1,6 +1,7 @@
 package core.common.di
 
 import adapters.claude.ClaudeCodeAdapter
+import adapters.claude.ClaudeCodeReviewAgent
 import core.agent.AgentAdapter
 import core.agent.DefaultPromptBuilder
 import core.agent.PromptBuilder
@@ -40,6 +41,9 @@ import core.repair.RepairContextBuilder
 import core.repair.RepairLoop
 import core.repository.DefaultRepositoryLoader
 import core.repository.RepositoryLoader
+import core.review.CodeReviewAgent
+import core.review.DefaultReviewPromptBuilder
+import core.review.ReviewPromptBuilder
 import core.validation.DefaultQualityGateEngine
 import core.validation.QualityGateEngine
 import io.kotest.core.spec.style.FunSpec
@@ -179,6 +183,18 @@ class AppModuleTest : FunSpec({
     test("appModule resolves a CommitMessageFormatter") {
         val koin = koinApplication { modules(appModule) }.koin
         koin.get<CommitMessageFormatter>().shouldBeInstanceOf<DefaultCommitMessageFormatter>()
+        koin.close()
+    }
+
+    test("appModule resolves a ReviewPromptBuilder") {
+        val koin = koinApplication { modules(appModule) }.koin
+        koin.get<ReviewPromptBuilder>().shouldBeInstanceOf<DefaultReviewPromptBuilder>()
+        koin.close()
+    }
+
+    test("appModule resolves a CodeReviewAgent") {
+        val koin = koinApplication { modules(appModule) }.koin
+        koin.get<CodeReviewAgent>().shouldBeInstanceOf<ClaudeCodeReviewAgent>()
         koin.close()
     }
 })

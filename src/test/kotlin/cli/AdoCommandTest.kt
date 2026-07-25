@@ -21,6 +21,7 @@ class AdoCommandTest : FunSpec({
         result.output shouldContain "build"
         result.output shouldContain "repair"
         result.output shouldContain "quality"
+        result.output shouldContain "review"
         result.output shouldContain "git"
         result.output shouldContain "run"
     }

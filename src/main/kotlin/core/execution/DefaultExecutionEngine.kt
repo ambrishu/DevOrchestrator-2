@@ -11,6 +11,7 @@ import core.planner.StoryLoader
 import core.planner.StoryPlanner
 import core.progress.ProgressTracker
 import core.repair.RepairLoop
+import core.review.CodeReviewAgent
 import core.validation.QualityGateEngine
 import io.github.oshai.kotlinlogging.KotlinLogging
 import models.AdoConfiguration
@@ -26,12 +27,12 @@ private val logger = KotlinLogging.logger {}
 /**
  * [ExecutionEngine] implementing the full documented lifecycle (`docs/06-execution-engine.md`
  * §7): select -> build context -> invoke agent -> execute build -> repair until successful ->
- * quality gates -> commit -> update progress, looping until no executable story remains.
+ * quality gates -> AI review -> commit -> update progress, looping until no executable story
+ * remains.
  *
- * AI code review is part of the same documented lifecycle but was never built (no roadmap
- * milestone covers it), so this engine goes straight from quality gates to commit. Any failure —
- * context assembly, agent invocation, exhausted repair retries, a failed quality gate, or a
- * failed commit — blocks that story and stops the run.
+ * Code review runs only when `review.enabled` is true (the default). Any failure — context
+ * assembly, agent invocation, exhausted repair retries, a failed quality gate, a blocking review
+ * issue, or a failed commit — blocks that story and stops the run.
  */
 class DefaultExecutionEngine(
     private val storyLoader: StoryLoader,
@@ -42,6 +43,7 @@ class DefaultExecutionEngine(
     private val buildExecutor: BuildExecutor,
     private val repairLoop: RepairLoop,
     private val qualityGateEngine: QualityGateEngine,
+    private val codeReviewAgent: CodeReviewAgent,
     private val gitManager: GitManager,
     private val commitMessageFormatter: CommitMessageFormatter,
     private val configurationLoader: ConfigurationLoader,
@@ -78,13 +80,14 @@ class DefaultExecutionEngine(
     }
 
     private fun executeStory(story: Story, repositoryPath: Path): StoryExecutionResult {
+        val config = loadConfig(repositoryPath)
+
         val context = contextBuilder.buildContext(story, repositoryPath)
         agentAdapter.generate(context, repositoryPath)
 
         var buildResult = buildExecutor.executeBuild(repositoryPath)
         if (!buildResult.isSuccess) {
-            val maxRetries = loadConfig(repositoryPath).repair.retries
-            val repairResult = repairLoop.repair(context, repositoryPath, buildResult, maxRetries)
+            val repairResult = repairLoop.repair(context, repositoryPath, buildResult, config.repair.retries)
             if (!repairResult.succeeded) {
                 return StoryExecutionResult(
                     story.id,
@@ -99,6 +102,17 @@ class DefaultExecutionEngine(
         if (!qualityReport.allPassed) {
             val failedGates = qualityReport.results.filter { !it.passed }.joinToString(", ") { it.name }
             return StoryExecutionResult(story.id, StoryStatus.BLOCKED, "Quality gates failed: $failedGates")
+        }
+
+        if (config.review.enabled) {
+            val reviewResult = codeReviewAgent.review(context, repositoryPath)
+            if (reviewResult.hasBlockingIssues) {
+                return StoryExecutionResult(
+                    story.id,
+                    StoryStatus.BLOCKED,
+                    "Code review blocked: ${reviewResult.blockingIssues.joinToString("; ")}",
+                )
+            }
         }
 
         val commitResult = gitManager.createCommit(repositoryPath, commitMessageFormatter.format(story))

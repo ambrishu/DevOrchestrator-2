@@ -13,14 +13,17 @@ import core.progress.FileProgressTracker
 import core.repair.DefaultFailureAnalyzer
 import core.repair.DefaultRepairContextBuilder
 import core.repair.DefaultRepairLoop
+import core.review.CodeReviewAgent
 import core.validation.DefaultQualityGateEngine
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import models.ContextPackage
 import models.GenerationResult
+import models.ReviewResult
 import models.StoryExecutionResult
 import models.StoryStatus
 import utils.DefaultProcessExecutor
@@ -85,9 +88,16 @@ private fun writingAgentAdapter(): AgentAdapter {
     return adapter
 }
 
+/** [CodeReviewAgent] test double for the integration suite; a real one would invoke live `claude`. */
+private fun nonBlockingReviewAgent(): CodeReviewAgent {
+    val agent = mockk<CodeReviewAgent>()
+    every { agent.review(any(), any()) } returns ReviewResult()
+    return agent
+}
+
 class DefaultExecutionEngineIntegrationTest : FunSpec({
 
-    fun realEngine(agentAdapter: AgentAdapter) = DefaultExecutionEngine(
+    fun realEngine(agentAdapter: AgentAdapter, codeReviewAgent: CodeReviewAgent = nonBlockingReviewAgent()) = DefaultExecutionEngine(
         storyLoader = TasksFileLoader(),
         storyPlanner = DefaultStoryPlanner(DefaultDependencyResolver()),
         progressTracker = FileProgressTracker(),
@@ -101,6 +111,7 @@ class DefaultExecutionEngineIntegrationTest : FunSpec({
             DefaultBuildExecutor(),
         ),
         qualityGateEngine = DefaultQualityGateEngine(YamlConfigurationLoader(), DefaultBuildExecutor(), DefaultProcessExecutor()),
+        codeReviewAgent = codeReviewAgent,
         gitManager = DefaultGitManager(),
         commitMessageFormatter = DefaultCommitMessageFormatter(),
         configurationLoader = YamlConfigurationLoader(),
@@ -262,5 +273,74 @@ class DefaultExecutionEngineIntegrationTest : FunSpec({
         subjects.shouldHaveSize(3)
         subjects[0] shouldBe "feat(ADO-002): second story"
         subjects[1] shouldBe "feat(ADO-001): first story"
+    }
+
+    test("a blocking code review issue blocks the story and no commit is made") {
+        val repo = initGitRepo()
+        writeTasksFile(
+            repo,
+            """
+            ADO-001 — First Story
+
+            Status: todo
+
+            Depends On: None
+
+            Description
+
+            The first story.
+
+            $DIVIDER
+            """.trimIndent(),
+        )
+        val alwaysOk = createExecutableScript(repo, "always-ok", "#!/bin/sh\necho ok\nexit 0\n")
+        writeConfig(repo, alwaysOk)
+        commitFixtureSetup(repo)
+        val commitsBefore = gitLogSubjects(repo).size
+
+        val blockingReviewAgent = mockk<CodeReviewAgent>()
+        every { blockingReviewAgent.review(any(), any()) } returns
+            ReviewResult(blockingIssues = listOf("Thread-unsafe access to shared state"))
+
+        val summary = realEngine(writingAgentAdapter(), blockingReviewAgent).run(repo)
+
+        summary.results shouldBe listOf(
+            StoryExecutionResult(
+                "ADO-001",
+                StoryStatus.BLOCKED,
+                "Code review blocked: Thread-unsafe access to shared state",
+            ),
+        )
+        gitLogSubjects(repo).size shouldBe commitsBefore
+    }
+
+    test("skips code review when review.enabled is false in real configuration") {
+        val repo = initGitRepo()
+        writeTasksFile(
+            repo,
+            """
+            ADO-001 — First Story
+
+            Status: todo
+
+            Depends On: None
+
+            Description
+
+            The first story.
+
+            $DIVIDER
+            """.trimIndent(),
+        )
+        val alwaysOk = createExecutableScript(repo, "always-ok", "#!/bin/sh\necho ok\nexit 0\n")
+        writeConfig(repo, alwaysOk, extra = "review:\n  enabled: false\n")
+        commitFixtureSetup(repo)
+
+        val reviewAgent = mockk<CodeReviewAgent>()
+
+        val summary = realEngine(writingAgentAdapter(), reviewAgent).run(repo)
+
+        summary.results.map { it.status } shouldBe listOf(StoryStatus.DONE)
+        verify(exactly = 0) { reviewAgent.review(any(), any()) }
     }
 })
