@@ -55,4 +55,15 @@ class DefaultProcessExecutorTest : FunSpec({
 
         result.stdout shouldBe "present"
     }
+
+    test("closes the child's stdin so a command reading it sees immediate EOF") {
+        val workingDirectory = Files.createTempDirectory("ado-process-executor-test")
+
+        // `cat` with no file argument reads stdin until EOF, then echoes what it read.
+        // If stdin were left open, this would hang until the test timed out.
+        val result = executor.execute(listOf("cat"), workingDirectory)
+
+        result.exitCode shouldBe 0
+        result.stdout shouldBe ""
+    }
 })

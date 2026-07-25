@@ -17,6 +17,10 @@ class DefaultProcessExecutor : ProcessExecutor {
             throw ProcessExecutionException("Failed to start process: ${command.joinToString(" ")}", e)
         }
 
+        // ADO never sends stdin. Closing it immediately signals EOF instead of leaving children
+        // that check for piped input (e.g. `claude --print`) waiting out a timeout guessing.
+        process.outputStream.close()
+
         val stderr = StringBuilder()
         val stderrThread = Thread {
             process.errorStream.bufferedReader().forEachLine { stderr.appendLine(it) }
