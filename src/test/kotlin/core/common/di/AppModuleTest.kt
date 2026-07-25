@@ -18,6 +18,10 @@ import core.context.RepositoryScanner
 import core.context.SourceSelector
 import core.execution.DefaultExecutionEngine
 import core.execution.ExecutionEngine
+import core.git.CommitMessageFormatter
+import core.git.DefaultCommitMessageFormatter
+import core.git.DefaultGitManager
+import core.git.GitManager
 import core.planner.DefaultDependencyResolver
 import core.planner.DefaultStoryPlanner
 import core.planner.DependencyResolver
@@ -163,6 +167,18 @@ class AppModuleTest : FunSpec({
     test("appModule resolves a QualityGateEngine") {
         val koin = koinApplication { modules(appModule) }.koin
         koin.get<QualityGateEngine>().shouldBeInstanceOf<DefaultQualityGateEngine>()
+        koin.close()
+    }
+
+    test("appModule resolves a GitManager") {
+        val koin = koinApplication { modules(appModule) }.koin
+        koin.get<GitManager>().shouldBeInstanceOf<DefaultGitManager>()
+        koin.close()
+    }
+
+    test("appModule resolves a CommitMessageFormatter") {
+        val koin = koinApplication { modules(appModule) }.koin
+        koin.get<CommitMessageFormatter>().shouldBeInstanceOf<DefaultCommitMessageFormatter>()
         koin.close()
     }
 })

@@ -21,6 +21,10 @@ import core.context.RepositoryScanner
 import core.context.SourceSelector
 import core.execution.DefaultExecutionEngine
 import core.execution.ExecutionEngine
+import core.git.CommitMessageFormatter
+import core.git.DefaultCommitMessageFormatter
+import core.git.DefaultGitManager
+import core.git.GitManager
 import core.planner.DefaultDependencyResolver
 import core.planner.DefaultStoryPlanner
 import core.planner.DependencyResolver
@@ -86,6 +90,9 @@ val appModule = module {
     single<QualityGateEngine> {
         DefaultQualityGateEngine(configurationLoader = get(), buildExecutor = get(), processExecutor = get())
     }
+
+    single<GitManager> { DefaultGitManager(processExecutor = get()) }
+    single<CommitMessageFormatter> { DefaultCommitMessageFormatter() }
 
     single<ExecutionEngine> {
         DefaultExecutionEngine(

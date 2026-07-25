@@ -54,6 +54,12 @@ class AdoExceptionTest : FunSpec({
         exception.message shouldBe "could not start the build"
     }
 
+    test("GitOperationException is an AdoException") {
+        val exception = GitOperationException("git status failed")
+        exception.shouldBeInstanceOf<AdoException>()
+        exception.message shouldBe "git status failed"
+    }
+
     test("exceptions preserve their cause") {
         val cause = IllegalStateException("root cause")
         val exception = ConfigurationException("wrapped", cause)
