@@ -36,6 +36,8 @@ import core.repair.RepairContextBuilder
 import core.repair.RepairLoop
 import core.repository.DefaultRepositoryLoader
 import core.repository.RepositoryLoader
+import core.validation.DefaultQualityGateEngine
+import core.validation.QualityGateEngine
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.types.shouldBeInstanceOf
 import org.koin.dsl.koinApplication
@@ -155,6 +157,12 @@ class AppModuleTest : FunSpec({
     test("appModule resolves a RepairLoop") {
         val koin = koinApplication { modules(appModule) }.koin
         koin.get<RepairLoop>().shouldBeInstanceOf<DefaultRepairLoop>()
+        koin.close()
+    }
+
+    test("appModule resolves a QualityGateEngine") {
+        val koin = koinApplication { modules(appModule) }.koin
+        koin.get<QualityGateEngine>().shouldBeInstanceOf<DefaultQualityGateEngine>()
         koin.close()
     }
 })

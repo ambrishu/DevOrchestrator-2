@@ -50,6 +50,10 @@ class DefaultConfigurationValidatorTest : FunSpec({
         validator.validate(AdoConfiguration(repair = RepairConfig(retries = 0))).isValid shouldBe true
     }
 
+    test("blank formatting, static analysis, integration test, and architecture validation commands are valid") {
+        validator.validate(AdoConfiguration()).isValid shouldBe true
+    }
+
     test("multiple violations are all reported") {
         val result = validator.validate(
             AdoConfiguration(

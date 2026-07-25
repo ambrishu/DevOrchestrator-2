@@ -33,6 +33,33 @@ data class RepairConfig(
 )
 
 /**
+ * Formatting quality gate command. Blank means the gate is not configured for this repository
+ * and is skipped, since no formatting tool can be safely assumed.
+ */
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class FormattingConfig(
+    val command: String = "",
+)
+
+/** Static analysis quality gate command. Blank means the gate is skipped, as with [FormattingConfig]. */
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class StaticAnalysisConfig(
+    val command: String = "",
+)
+
+/** Integration test quality gate command. Blank means the gate is skipped, as with [FormattingConfig]. */
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class IntegrationTestConfig(
+    val command: String = "",
+)
+
+/** Architecture validation quality gate command. Blank means the gate is skipped, as with [FormattingConfig]. */
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class ArchitectureValidationConfig(
+    val command: String = "",
+)
+
+/**
  * Top-level ADO configuration loaded from `.ado/config.yaml`.
  *
  * Every section has a default, so a partial or empty document parses to a
@@ -45,4 +72,8 @@ data class AdoConfiguration(
     val test: TestConfig = TestConfig(),
     val review: ReviewConfig = ReviewConfig(),
     val repair: RepairConfig = RepairConfig(),
+    val formatting: FormattingConfig = FormattingConfig(),
+    val staticAnalysis: StaticAnalysisConfig = StaticAnalysisConfig(),
+    val integrationTest: IntegrationTestConfig = IntegrationTestConfig(),
+    val architectureValidation: ArchitectureValidationConfig = ArchitectureValidationConfig(),
 )

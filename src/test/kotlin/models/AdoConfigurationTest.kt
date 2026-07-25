@@ -13,6 +13,10 @@ class AdoConfigurationTest : FunSpec({
         config.test.command shouldBe "./gradlew test"
         config.review.enabled shouldBe true
         config.repair.retries shouldBe 5
+        config.formatting.command shouldBe ""
+        config.staticAnalysis.command shouldBe ""
+        config.integrationTest.command shouldBe ""
+        config.architectureValidation.command shouldBe ""
     }
 
     test("configuration is a data class supporting structural equality") {

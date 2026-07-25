@@ -39,6 +39,8 @@ import core.repair.RepairContextBuilder
 import core.repair.RepairLoop
 import core.repository.DefaultRepositoryLoader
 import core.repository.RepositoryLoader
+import core.validation.DefaultQualityGateEngine
+import core.validation.QualityGateEngine
 import org.koin.dsl.module
 import utils.DefaultProcessExecutor
 import utils.ProcessExecutor
@@ -79,6 +81,10 @@ val appModule = module {
             agentAdapter = get(),
             buildExecutor = get(),
         )
+    }
+
+    single<QualityGateEngine> {
+        DefaultQualityGateEngine(configurationLoader = get(), buildExecutor = get(), processExecutor = get())
     }
 
     single<ExecutionEngine> {
