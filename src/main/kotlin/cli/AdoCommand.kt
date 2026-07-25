@@ -15,6 +15,7 @@ class AdoCommand : CliktCommand(name = "ado", help = "AI Development Orchestrato
             ProgressCommand(),
             ContextCommand(),
             AgentCommand(),
+            BuildCommand(),
             RunCommand(),
         )
     }

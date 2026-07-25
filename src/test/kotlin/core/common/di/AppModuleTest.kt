@@ -4,6 +4,8 @@ import adapters.claude.ClaudeCodeAdapter
 import core.agent.AgentAdapter
 import core.agent.DefaultPromptBuilder
 import core.agent.PromptBuilder
+import core.build.BuildExecutor
+import core.build.DefaultBuildExecutor
 import core.configuration.ConfigurationLoader
 import core.configuration.YamlConfigurationLoader
 import core.context.ContextBuilder
@@ -123,6 +125,12 @@ class AppModuleTest : FunSpec({
     test("appModule resolves an ExecutionEngine") {
         val koin = koinApplication { modules(appModule) }.koin
         koin.get<ExecutionEngine>().shouldBeInstanceOf<DefaultExecutionEngine>()
+        koin.close()
+    }
+
+    test("appModule resolves a BuildExecutor") {
+        val koin = koinApplication { modules(appModule) }.koin
+        koin.get<BuildExecutor>().shouldBeInstanceOf<DefaultBuildExecutor>()
         koin.close()
     }
 })

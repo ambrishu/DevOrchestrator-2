@@ -48,6 +48,12 @@ class AdoExceptionTest : FunSpec({
         exception.message shouldBe "agent failed"
     }
 
+    test("BuildExecutionException is an AdoException") {
+        val exception = BuildExecutionException("could not start the build")
+        exception.shouldBeInstanceOf<AdoException>()
+        exception.message shouldBe "could not start the build"
+    }
+
     test("exceptions preserve their cause") {
         val cause = IllegalStateException("root cause")
         val exception = ConfigurationException("wrapped", cause)

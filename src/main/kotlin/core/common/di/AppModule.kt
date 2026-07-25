@@ -5,6 +5,8 @@ import adapters.claude.ClaudeCodeInvoker
 import core.agent.AgentAdapter
 import core.agent.DefaultPromptBuilder
 import core.agent.PromptBuilder
+import core.build.BuildExecutor
+import core.build.DefaultBuildExecutor
 import core.configuration.ConfigurationLoader
 import core.configuration.ConfigurationValidator
 import core.configuration.DefaultConfigurationValidator
@@ -60,6 +62,8 @@ val appModule = module {
     single<AgentAdapter> {
         ClaudeCodeAdapter(promptBuilder = get(), invoker = ClaudeCodeInvoker(processExecutor = get()))
     }
+
+    single<BuildExecutor> { DefaultBuildExecutor(configurationLoader = get(), processExecutor = get()) }
 
     single<ExecutionEngine> {
         DefaultExecutionEngine(
