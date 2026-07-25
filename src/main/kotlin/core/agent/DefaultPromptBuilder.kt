@@ -29,6 +29,17 @@ class DefaultPromptBuilder : PromptBuilder {
             context.acceptanceCriteria.forEach { appendLine("- $it") }
         }
 
+        context.failureAnalysis?.let { analysis ->
+            appendLine()
+            appendLine("Previous Build Failure (${analysis.category}):")
+            if (analysis.details.isEmpty()) {
+                appendLine("(no specific detail lines captured)")
+            } else {
+                analysis.details.forEach { appendLine("- $it") }
+            }
+            appendLine("Fix only this failure. Do not make unrelated changes.")
+        }
+
         if (context.prdExcerpts.isNotEmpty()) {
             appendLine()
             appendLine("Product Requirements:")

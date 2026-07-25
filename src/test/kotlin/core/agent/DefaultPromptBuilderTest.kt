@@ -2,7 +2,10 @@ package core.agent
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.string.shouldContain
+import io.kotest.matchers.string.shouldNotContain
 import models.ContextPackage
+import models.FailureAnalysis
+import models.FailureCategory
 import models.SourceFile
 import models.Story
 import models.StoryStatus
@@ -71,5 +74,25 @@ class DefaultPromptBuilderTest : FunSpec({
         prompt shouldContain "class Foo"
         prompt shouldContain "src/test/kotlin/FooTest.kt"
         prompt shouldContain "class FooTest"
+    }
+
+    test("does not include a failure section for ordinary generation") {
+        val prompt = builder.buildPrompt(ContextPackage(story, emptyList()))
+
+        prompt shouldNotContain "Previous Build Failure"
+    }
+
+    test("includes the failure category, detail lines, and a fix-only instruction when repairing") {
+        val context = ContextPackage(
+            story = story,
+            acceptanceCriteria = emptyList(),
+            failureAnalysis = FailureAnalysis(FailureCategory.COMPILATION, listOf("e: Foo.kt: Unresolved reference: bar")),
+        )
+
+        val prompt = builder.buildPrompt(context)
+
+        prompt shouldContain "Previous Build Failure (COMPILATION)"
+        prompt shouldContain "e: Foo.kt: Unresolved reference: bar"
+        prompt shouldContain "Fix only this failure. Do not make unrelated changes."
     }
 })

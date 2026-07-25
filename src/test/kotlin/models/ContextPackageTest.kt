@@ -17,6 +17,14 @@ class ContextPackageTest : FunSpec({
         context.impactedSourceFiles shouldBe emptyList()
         context.relatedTests shouldBe emptyList()
         context.expectedDeliverables shouldBe emptyList()
+        context.failureAnalysis shouldBe null
+    }
+
+    test("failureAnalysis can be set for a repair attempt") {
+        val analysis = FailureAnalysis(FailureCategory.COMPILATION, listOf("e: Foo.kt: Unresolved reference: bar"))
+        val context = ContextPackage(story = story, acceptanceCriteria = emptyList(), failureAnalysis = analysis)
+
+        context.failureAnalysis shouldBe analysis
     }
 
     test("carries the story and its acceptance criteria") {

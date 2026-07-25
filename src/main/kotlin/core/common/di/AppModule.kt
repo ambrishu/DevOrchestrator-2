@@ -32,7 +32,11 @@ import core.planner.TasksFileLoader
 import core.progress.FileProgressTracker
 import core.progress.ProgressTracker
 import core.repair.DefaultFailureAnalyzer
+import core.repair.DefaultRepairContextBuilder
+import core.repair.DefaultRepairLoop
 import core.repair.FailureAnalyzer
+import core.repair.RepairContextBuilder
+import core.repair.RepairLoop
 import core.repository.DefaultRepositoryLoader
 import core.repository.RepositoryLoader
 import org.koin.dsl.module
@@ -67,6 +71,15 @@ val appModule = module {
 
     single<BuildExecutor> { DefaultBuildExecutor(configurationLoader = get(), processExecutor = get()) }
     single<FailureAnalyzer> { DefaultFailureAnalyzer() }
+    single<RepairContextBuilder> { DefaultRepairContextBuilder() }
+    single<RepairLoop> {
+        DefaultRepairLoop(
+            failureAnalyzer = get(),
+            repairContextBuilder = get(),
+            agentAdapter = get(),
+            buildExecutor = get(),
+        )
+    }
 
     single<ExecutionEngine> {
         DefaultExecutionEngine(

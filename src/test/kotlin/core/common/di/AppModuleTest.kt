@@ -29,7 +29,11 @@ import core.planner.TasksFileLoader
 import core.progress.FileProgressTracker
 import core.progress.ProgressTracker
 import core.repair.DefaultFailureAnalyzer
+import core.repair.DefaultRepairContextBuilder
+import core.repair.DefaultRepairLoop
 import core.repair.FailureAnalyzer
+import core.repair.RepairContextBuilder
+import core.repair.RepairLoop
 import core.repository.DefaultRepositoryLoader
 import core.repository.RepositoryLoader
 import io.kotest.core.spec.style.FunSpec
@@ -139,6 +143,18 @@ class AppModuleTest : FunSpec({
     test("appModule resolves a FailureAnalyzer") {
         val koin = koinApplication { modules(appModule) }.koin
         koin.get<FailureAnalyzer>().shouldBeInstanceOf<DefaultFailureAnalyzer>()
+        koin.close()
+    }
+
+    test("appModule resolves a RepairContextBuilder") {
+        val koin = koinApplication { modules(appModule) }.koin
+        koin.get<RepairContextBuilder>().shouldBeInstanceOf<DefaultRepairContextBuilder>()
+        koin.close()
+    }
+
+    test("appModule resolves a RepairLoop") {
+        val koin = koinApplication { modules(appModule) }.koin
+        koin.get<RepairLoop>().shouldBeInstanceOf<DefaultRepairLoop>()
         koin.close()
     }
 })

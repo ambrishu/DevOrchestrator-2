@@ -19,6 +19,7 @@ class AdoCommandTest : FunSpec({
         result.output shouldContain "context"
         result.output shouldContain "agent"
         result.output shouldContain "build"
+        result.output shouldContain "repair"
         result.output shouldContain "run"
     }
 

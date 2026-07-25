@@ -8,6 +8,10 @@ package models
  * `codingStandards`, and `expectedDeliverables` are part of the documented contract but stay
  * empty until this repository has ADR files, a coding-standards document, and a defined
  * deliverable-extraction rule to populate them from.
+ *
+ * [failureAnalysis] is null for ordinary generation. The Repair Loop sets it to fold a prior
+ * build failure into the same context shape, so [core.agent.AgentAdapter.generate] and
+ * [core.agent.PromptBuilder] need no repair-specific variant.
  */
 data class ContextPackage(
     val story: Story,
@@ -19,4 +23,5 @@ data class ContextPackage(
     val impactedSourceFiles: List<SourceFile> = emptyList(),
     val relatedTests: List<SourceFile> = emptyList(),
     val expectedDeliverables: List<String> = emptyList(),
+    val failureAnalysis: FailureAnalysis? = null,
 )
