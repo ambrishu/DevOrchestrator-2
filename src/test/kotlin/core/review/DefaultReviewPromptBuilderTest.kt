@@ -51,6 +51,13 @@ class DefaultReviewPromptBuilderTest : FunSpec({
         prompt shouldContain "RECOMMENDATION:"
     }
 
+    test("explicitly tells the agent not to write a BLOCKING: none confirmation line") {
+        val prompt = builder.buildPrompt(ContextPackage(story, emptyList()), emptyList())
+
+        prompt shouldContain "omit it"
+        prompt shouldContain "BLOCKING: none"
+    }
+
     test("includes changed file paths and content") {
         val prompt = builder.buildPrompt(
             ContextPackage(story, emptyList()),

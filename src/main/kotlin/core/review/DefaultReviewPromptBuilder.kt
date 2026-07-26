@@ -48,7 +48,8 @@ class DefaultReviewPromptBuilder : ReviewPromptBuilder {
         appendLine("Report one finding per line, in one of these two forms:")
         appendLine("BLOCKING: <issue that must be fixed before this story can be completed>")
         appendLine("RECOMMENDATION: <non-blocking suggestion>")
-        append("If there are no issues, report nothing.")
+        appendLine("If there are no blocking issues, do not write a BLOCKING: line at all — omit it")
+        append("entirely. Never write \"BLOCKING: none\" or similar to confirm there is no issue.")
     }.trimEnd()
 
     private companion object {

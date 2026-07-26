@@ -63,4 +63,38 @@ class ReviewResultParserTest : FunSpec({
 
         result.blockingIssues shouldBe listOf("extra spaces around the message")
     }
+
+    test("ignores a BLOCKING line that is itself a no-issue confirmation") {
+        val result = parser.parse(
+            processResult("BLOCKING: none — the implementation satisfies the acceptance criteria"),
+        )
+
+        result.blockingIssues shouldBe emptyList()
+    }
+
+    test("recognizes common phrasings of \"no issue\" after the BLOCKING prefix") {
+        listOf(
+            "BLOCKING: none",
+            "BLOCKING: None.",
+            "BLOCKING: N/A",
+            "BLOCKING: no issues found",
+            "BLOCKING: nothing to report",
+            "BLOCKING: - none",
+            "BLOCKING: no blocking issues identified",
+        ).forEach { line ->
+            parser.parse(processResult(line)).blockingIssues shouldBe emptyList()
+        }
+    }
+
+    test("still reports a real issue that happens to start with a similar word") {
+        val result = parser.parse(processResult("BLOCKING: Nothing validates the input before parsing it"))
+
+        result.blockingIssues shouldBe listOf("Nothing validates the input before parsing it")
+    }
+
+    test("still reports a real issue phrased as \"None of the...\"") {
+        val result = parser.parse(processResult("BLOCKING: None of the tests cover the retry-exhausted path"))
+
+        result.blockingIssues shouldBe listOf("None of the tests cover the retry-exhausted path")
+    }
 })
