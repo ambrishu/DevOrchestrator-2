@@ -380,4 +380,50 @@ class DefaultExecutionEngineIntegrationTest : FunSpec({
         summary.results.map { it.status } shouldBe listOf(StoryStatus.DONE)
         verify(exactly = 0) { reviewAgent.review(any(), any()) }
     }
+
+    test("a story blocked on the first attempt is retried once and reaches DONE") {
+        val repo = initGitRepo()
+        writeTasksFile(
+            repo,
+            """
+            ADO-001 — First Story
+
+            Status: todo
+
+            Depends On: None
+
+            Description
+
+            The first story.
+
+            $DIVIDER
+            """.trimIndent(),
+        )
+        val gatedBuild = createExecutableScript(
+            repo,
+            "gated-build",
+            "#!/bin/sh\nif [ -f READY ]; then echo ok; exit 0; else echo 'not ready' 1>&2; exit 1; fi\n",
+        )
+        writeConfig(repo, gatedBuild, extra = "repair:\n  retries: 0\n")
+        commitFixtureSetup(repo)
+
+        var callCount = 0
+        val agentAdapter = mockk<AgentAdapter>()
+        every { agentAdapter.generate(any(), any()) } answers {
+            callCount++
+            val repositoryPath = secondArg<Path>()
+            if (callCount >= 2) {
+                Files.writeString(repositoryPath.resolve("READY"), "fixed")
+            } else {
+                Files.writeString(repositoryPath.resolve("attempt-one.txt"), "not ready yet")
+            }
+            GenerationResult(summary = "attempt $callCount")
+        }
+
+        val summary = realEngine(agentAdapter).run(repo)
+
+        summary.results.shouldHaveSize(1)
+        summary.results.first().status shouldBe StoryStatus.DONE
+        callCount shouldBe 2
+    }
 })

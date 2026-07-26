@@ -37,10 +37,12 @@ private val logger = KotlinLogging.logger {}
  * re-runs, up to `repair.retries` attempts — a separate budget from build-failure repair, since
  * the two are independent concerns and a story could need both in the same run.
  *
- * Code review runs only when `review.enabled` is true (the default). Quality gate failures are
- * not retried (no documented repair path for them); any other failure — context assembly, agent
- * invocation, exhausted repair retries of either kind, or a failed commit — blocks the story and
- * stops the run.
+ * Code review runs only when `review.enabled` is true (the default). Quality gate failures have
+ * no interior repair path, and neither do commit failures — but whatever the cause, a story that
+ * ends up blocked gets one full fresh attempt (re-select, re-generate, rebuild, re-gate,
+ * re-review, re-commit) before it is actually recorded as blocked and the run stops. This is a
+ * coarser, story-level safety net independent of the finer-grained build/review repair loops
+ * above, which retry the *same* attempt with targeted feedback; this one just tries again.
  */
 class DefaultExecutionEngine(
     private val storyLoader: StoryLoader,
@@ -73,11 +75,10 @@ class DefaultExecutionEngine(
             logger.info { "Executing ${story.id} — ${story.title}" }
             progressTracker.updateStatus(repositoryPath, story.id, StoryStatus.IN_PROGRESS)
 
-            val outcome = try {
-                executeStory(story, repositoryPath)
-            } catch (e: AdoException) {
-                logger.warn(e) { "${story.id} failed and will be blocked" }
-                StoryExecutionResult(story.id, StoryStatus.BLOCKED, e.message ?: "Execution failed")
+            var outcome = attemptStory(story, repositoryPath)
+            if (outcome.status == StoryStatus.BLOCKED) {
+                logger.info { "${story.id} failed; retrying once before marking it blocked" }
+                outcome = attemptStory(story, repositoryPath)
             }
 
             progress = progressTracker.updateStatus(repositoryPath, story.id, outcome.status)
@@ -86,6 +87,13 @@ class DefaultExecutionEngine(
         }
 
         return ExecutionSummary(results)
+    }
+
+    private fun attemptStory(story: Story, repositoryPath: Path): StoryExecutionResult = try {
+        executeStory(story, repositoryPath)
+    } catch (e: AdoException) {
+        logger.warn(e) { "${story.id} failed" }
+        StoryExecutionResult(story.id, StoryStatus.BLOCKED, e.message ?: "Execution failed")
     }
 
     private fun executeStory(story: Story, repositoryPath: Path): StoryExecutionResult {
