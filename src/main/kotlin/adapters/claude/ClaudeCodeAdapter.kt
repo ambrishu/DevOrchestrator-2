@@ -20,7 +20,7 @@ class ClaudeCodeAdapter(
         val prompt = promptBuilder.buildPrompt(context)
 
         val result = try {
-            invoker.invoke(prompt, repositoryPath)
+            invoker.invoke(prompt, repositoryPath, permissionMode = "acceptEdits")
         } catch (e: ProcessExecutionException) {
             throw AgentInvocationException("Failed to invoke Claude Code: ${e.message}", e)
         }

@@ -10,6 +10,7 @@ import core.review.ReviewPromptBuilder
 import models.ContextPackage
 import models.ReviewResult
 import models.SourceFile
+import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Path
 
@@ -38,7 +39,7 @@ class ClaudeCodeReviewAgent(
         val prompt = reviewPromptBuilder.buildPrompt(context, changedFiles)
 
         val result = try {
-            invoker.invoke(prompt, repositoryPath)
+            invoker.invoke(prompt, repositoryPath, permissionMode = "plan")
         } catch (e: ProcessExecutionException) {
             throw ReviewFailureException("Failed to invoke Claude Code for review: ${e.message}", e)
         }
@@ -57,7 +58,15 @@ class ClaudeCodeReviewAgent(
         val status = gitManager.inspectStatus(repositoryPath)
         return status.changedFiles.mapNotNull { relativePath ->
             val file = repositoryPath.resolve(relativePath)
-            if (Files.isRegularFile(file)) SourceFile(relativePath, Files.readString(file)) else null
+            if (!Files.isRegularFile(file)) return@mapNotNull null
+
+            // Binary changed files (jars, images, compiled output) have nothing useful to show
+            // the reviewer as text; skip them rather than letting one crash the whole review.
+            try {
+                SourceFile(relativePath, Files.readString(file))
+            } catch (e: IOException) {
+                null
+            }
         }
     }
 }

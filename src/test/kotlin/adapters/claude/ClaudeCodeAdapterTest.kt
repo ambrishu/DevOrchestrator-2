@@ -10,6 +10,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import models.ContextPackage
 import models.ProcessResult
 import models.Story
@@ -35,12 +36,25 @@ class ClaudeCodeAdapterTest : FunSpec({
 
     test("returns a GenerationResult when claude exits successfully") {
         val processExecutor = mockk<ProcessExecutor>()
-        every { processExecutor.execute(listOf("claude", "--print", "the prompt"), repositoryPath) } returns
-            ProcessResult(exitCode = 0, stdout = "Implemented it.", stderr = "", durationMillis = 5)
+        every {
+            processExecutor.execute(listOf("claude", "--print", "--permission-mode", "acceptEdits", "the prompt"), repositoryPath)
+        } returns ProcessResult(exitCode = 0, stdout = "Implemented it.", stderr = "", durationMillis = 5)
 
         val result = adapterWith(processExecutor).generate(context, repositoryPath)
 
         result.summary shouldBe "Implemented it."
+    }
+
+    test("invokes claude with acceptEdits permission mode, since generation must write files") {
+        val processExecutor = mockk<ProcessExecutor>()
+        every { processExecutor.execute(any(), any()) } returns
+            ProcessResult(exitCode = 0, stdout = "done", stderr = "", durationMillis = 5)
+
+        adapterWith(processExecutor).generate(context, repositoryPath)
+
+        verify {
+            processExecutor.execute(listOf("claude", "--print", "--permission-mode", "acceptEdits", "the prompt"), repositoryPath)
+        }
     }
 
     test("throws AgentInvocationException when claude exits with a non-zero status") {

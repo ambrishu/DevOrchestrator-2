@@ -47,12 +47,52 @@ class ClaudeCodeReviewAgentTest : FunSpec({
         every { reviewPromptBuilder.buildPrompt(context, listOf(SourceFile("Foo.kt", "class Foo"))) } returns "the review prompt"
 
         val processExecutor = mockk<ProcessExecutor>()
-        every { processExecutor.execute(listOf("claude", "--print", "the review prompt"), repo) } returns
-            ProcessResult(exitCode = 0, stdout = "BLOCKING: bad thing", stderr = "", durationMillis = 5)
+        every {
+            processExecutor.execute(listOf("claude", "--print", "--permission-mode", "plan", "the review prompt"), repo)
+        } returns ProcessResult(exitCode = 0, stdout = "BLOCKING: bad thing", stderr = "", durationMillis = 5)
 
         val result = agentWith(gitManager, processExecutor, reviewPromptBuilder).review(context, repo)
 
         result.blockingIssues shouldBe listOf("bad thing")
+    }
+
+    test("invokes claude with plan permission mode, since review must never modify the repository") {
+        val repo = Files.createTempDirectory("ado-review-agent-test")
+        val gitManager = mockk<GitManager>()
+        every { gitManager.inspectStatus(repo) } returns RepositoryStatus(hasChanges = false)
+
+        val processExecutor = mockk<ProcessExecutor>()
+        every { processExecutor.execute(any(), repo) } returns
+            ProcessResult(exitCode = 0, stdout = "", stderr = "", durationMillis = 5)
+
+        agentWith(gitManager, processExecutor).review(context, repo)
+
+        verify {
+            processExecutor.execute(match { it.contains("--permission-mode") && it.contains("plan") }, repo)
+        }
+    }
+
+    test("skips a changed file that is not valid UTF-8 text, instead of crashing") {
+        val repo = Files.createTempDirectory("ado-review-agent-test")
+        // A lone continuation byte is not valid UTF-8 on its own; mimics binary content
+        // like a jar file appearing in `git status` after e.g. `gradle wrapper` runs.
+        Files.write(repo.resolve("gradle-wrapper.jar"), byteArrayOf(0x80.toByte(), 0x00))
+        Files.writeString(repo.resolve("Foo.kt"), "class Foo")
+
+        val gitManager = mockk<GitManager>()
+        every { gitManager.inspectStatus(repo) } returns
+            RepositoryStatus(hasChanges = true, changedFiles = listOf("gradle-wrapper.jar", "Foo.kt"))
+
+        val reviewPromptBuilder = mockk<ReviewPromptBuilder>()
+        every { reviewPromptBuilder.buildPrompt(context, listOf(SourceFile("Foo.kt", "class Foo"))) } returns "prompt"
+
+        val processExecutor = mockk<ProcessExecutor>()
+        every { processExecutor.execute(any(), repo) } returns
+            ProcessResult(exitCode = 0, stdout = "", stderr = "", durationMillis = 5)
+
+        agentWith(gitManager, processExecutor, reviewPromptBuilder).review(context, repo)
+
+        verify { reviewPromptBuilder.buildPrompt(context, listOf(SourceFile("Foo.kt", "class Foo"))) }
     }
 
     test("skips changed paths that no longer exist as regular files") {
