@@ -11,6 +11,7 @@ import core.git.GitManager
 import core.planner.StoryLoader
 import core.planner.StoryPlanner
 import core.progress.ProgressTracker
+import core.repair.RepairContextBuilder
 import core.repair.RepairLoop
 import core.review.CodeReviewAgent
 import core.validation.QualityGateEngine
@@ -71,6 +72,7 @@ class DefaultExecutionEngineTest : FunSpec({
         val agentAdapter = mockk<AgentAdapter>()
         val buildExecutor = mockk<BuildExecutor>()
         val repairLoop = mockk<RepairLoop>()
+        val repairContextBuilder = mockk<RepairContextBuilder>()
         val qualityGateEngine = mockk<QualityGateEngine>()
         val codeReviewAgent = mockk<CodeReviewAgent>()
         val gitManager = mockk<GitManager>()
@@ -84,8 +86,8 @@ class DefaultExecutionEngineTest : FunSpec({
 
         fun engine() = DefaultExecutionEngine(
             storyLoader, storyPlanner, progressTracker, contextBuilder, agentAdapter,
-            buildExecutor, repairLoop, qualityGateEngine, codeReviewAgent, gitManager,
-            commitMessageFormatter, configurationLoader,
+            buildExecutor, repairLoop, repairContextBuilder, qualityGateEngine, codeReviewAgent,
+            gitManager, commitMessageFormatter, configurationLoader,
         )
     }
 
@@ -210,11 +212,13 @@ class DefaultExecutionEngineTest : FunSpec({
         verify(exactly = 0) { fixture.gitManager.createCommit(any(), any()) }
     }
 
-    test("blocks the story when code review finds a blocking issue") {
+    test("blocks the story when code review keeps finding a blocking issue with no retries configured") {
         val fixture = Fixture()
         val storyA = story("ADO-001")
         val context = ContextPackage(storyA, emptyList())
 
+        every { fixture.configurationLoader.exists(configPath) } returns true
+        every { fixture.configurationLoader.load(configPath) } returns AdoConfiguration(repair = RepairConfig(retries = 0))
         every { fixture.storyLoader.loadStories(repositoryPath) } returns listOf(storyA)
         every { fixture.storyPlanner.selectNext(any()) } returns StorySelection.Selected(storyA)
         every { fixture.contextBuilder.buildContext(storyA, repositoryPath) } returns context
@@ -227,8 +231,68 @@ class DefaultExecutionEngineTest : FunSpec({
         val summary = fixture.engine().run(repositoryPath)
 
         summary.results shouldBe listOf(
-            StoryExecutionResult("ADO-001", StoryStatus.BLOCKED, "Code review blocked: Thread-unsafe access to shared state"),
+            StoryExecutionResult(
+                "ADO-001",
+                StoryStatus.BLOCKED,
+                "Code review blocked after 0 repair attempt(s): Thread-unsafe access to shared state",
+            ),
         )
+        verify(exactly = 0) { fixture.gitManager.createCommit(any(), any()) }
+    }
+
+    test("repairs a review-blocking issue and reaches DONE once the second review passes") {
+        val fixture = Fixture()
+        val storyA = story("ADO-001")
+        val context = ContextPackage(storyA, emptyList())
+        val analysis = ReviewResult(blockingIssues = listOf("Missing .gitignore"))
+        val repairedContext = context.copy(reviewFeedback = analysis.blockingIssues)
+
+        every { fixture.storyLoader.loadStories(repositoryPath) } returns listOf(storyA)
+        every { fixture.storyPlanner.selectNext(listOf(storyA)) } returns StorySelection.Selected(storyA)
+        every { fixture.storyPlanner.selectNext(listOf(storyA.copy(status = StoryStatus.DONE))) } returns StorySelection.None
+        every { fixture.contextBuilder.buildContext(storyA, repositoryPath) } returns context
+        every { fixture.buildExecutor.executeBuild(repositoryPath) } returns successfulBuild()
+        every { fixture.qualityGateEngine.runQualityGates(repositoryPath) } returns passingGates()
+        every { fixture.agentAdapter.generate(context, repositoryPath) } returns GenerationResult(summary = "done")
+        every { fixture.agentAdapter.generate(repairedContext, repositoryPath) } returns GenerationResult(summary = "fixed")
+        every { fixture.codeReviewAgent.review(context, repositoryPath) } returns analysis
+        every { fixture.codeReviewAgent.review(repairedContext, repositoryPath) } returns ReviewResult()
+        every { fixture.repairContextBuilder.buildReviewRepairContext(context, analysis) } returns repairedContext
+        every { fixture.commitMessageFormatter.format(storyA) } returns "feat(ADO-001): example"
+        every { fixture.gitManager.createCommit(repositoryPath, "feat(ADO-001): example") } returns
+            CommitResult(success = true, commitSha = "abc123")
+
+        val summary = fixture.engine().run(repositoryPath)
+
+        summary.results shouldBe listOf(StoryExecutionResult("ADO-001", StoryStatus.DONE, "Committed abc123"))
+        verify(exactly = 1) { fixture.agentAdapter.generate(repairedContext, repositoryPath) }
+        verify(exactly = 2) { fixture.codeReviewAgent.review(any(), repositoryPath) }
+    }
+
+    test("blocks after exhausting review-repair retries, without ever committing") {
+        val fixture = Fixture()
+        val storyA = story("ADO-001")
+        val context = ContextPackage(storyA, emptyList())
+        val analysis = ReviewResult(blockingIssues = listOf("Still not fixed"))
+        val repairedContext = context.copy(reviewFeedback = analysis.blockingIssues)
+
+        every { fixture.configurationLoader.exists(configPath) } returns true
+        every { fixture.configurationLoader.load(configPath) } returns AdoConfiguration(repair = RepairConfig(retries = 2))
+        every { fixture.storyLoader.loadStories(repositoryPath) } returns listOf(storyA)
+        every { fixture.storyPlanner.selectNext(any()) } returns StorySelection.Selected(storyA)
+        every { fixture.contextBuilder.buildContext(storyA, repositoryPath) } returns context
+        every { fixture.buildExecutor.executeBuild(repositoryPath) } returns successfulBuild()
+        every { fixture.qualityGateEngine.runQualityGates(repositoryPath) } returns passingGates()
+        every { fixture.agentAdapter.generate(any(), repositoryPath) } returns GenerationResult(summary = "attempt")
+        every { fixture.codeReviewAgent.review(any(), repositoryPath) } returns analysis
+        every { fixture.repairContextBuilder.buildReviewRepairContext(any(), analysis) } returns repairedContext
+
+        val summary = fixture.engine().run(repositoryPath)
+
+        summary.results shouldBe listOf(
+            StoryExecutionResult("ADO-001", StoryStatus.BLOCKED, "Code review blocked after 2 repair attempt(s): Still not fixed"),
+        )
+        verify(exactly = 3) { fixture.codeReviewAgent.review(any(), repositoryPath) }
         verify(exactly = 0) { fixture.gitManager.createCommit(any(), any()) }
     }
 

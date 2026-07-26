@@ -11,7 +11,8 @@ package models
  *
  * [failureAnalysis] is null for ordinary generation. The Repair Loop sets it to fold a prior
  * build failure into the same context shape, so [core.agent.AgentAdapter.generate] and
- * [core.agent.PromptBuilder] need no repair-specific variant.
+ * [core.agent.PromptBuilder] need no repair-specific variant. [reviewFeedback] is the analogous
+ * mechanism for a prior code review's blocking issues.
  */
 data class ContextPackage(
     val story: Story,
@@ -24,4 +25,5 @@ data class ContextPackage(
     val relatedTests: List<SourceFile> = emptyList(),
     val expectedDeliverables: List<String> = emptyList(),
     val failureAnalysis: FailureAnalysis? = null,
+    val reviewFeedback: List<String>? = null,
 )

@@ -116,6 +116,7 @@ val appModule = module {
             agentAdapter = get(),
             buildExecutor = get(),
             repairLoop = get(),
+            repairContextBuilder = get(),
             qualityGateEngine = get(),
             codeReviewAgent = get(),
             gitManager = get(),

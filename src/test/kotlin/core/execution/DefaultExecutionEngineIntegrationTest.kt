@@ -110,6 +110,7 @@ class DefaultExecutionEngineIntegrationTest : FunSpec({
             agentAdapter,
             DefaultBuildExecutor(),
         ),
+        repairContextBuilder = DefaultRepairContextBuilder(),
         qualityGateEngine = DefaultQualityGateEngine(YamlConfigurationLoader(), DefaultBuildExecutor(), DefaultProcessExecutor()),
         codeReviewAgent = codeReviewAgent,
         gitManager = DefaultGitManager(),
@@ -294,7 +295,7 @@ class DefaultExecutionEngineIntegrationTest : FunSpec({
             """.trimIndent(),
         )
         val alwaysOk = createExecutableScript(repo, "always-ok", "#!/bin/sh\necho ok\nexit 0\n")
-        writeConfig(repo, alwaysOk)
+        writeConfig(repo, alwaysOk, extra = "repair:\n  retries: 0\n")
         commitFixtureSetup(repo)
         val commitsBefore = gitLogSubjects(repo).size
 
@@ -308,10 +309,46 @@ class DefaultExecutionEngineIntegrationTest : FunSpec({
             StoryExecutionResult(
                 "ADO-001",
                 StoryStatus.BLOCKED,
-                "Code review blocked: Thread-unsafe access to shared state",
+                "Code review blocked after 0 repair attempt(s): Thread-unsafe access to shared state",
             ),
         )
         gitLogSubjects(repo).size shouldBe commitsBefore
+    }
+
+    test("a blocking code review issue is repaired by the agent and the story reaches DONE") {
+        val repo = initGitRepo()
+        writeTasksFile(
+            repo,
+            """
+            ADO-001 — First Story
+
+            Status: todo
+
+            Depends On: None
+
+            Description
+
+            The first story.
+
+            $DIVIDER
+            """.trimIndent(),
+        )
+        val alwaysOk = createExecutableScript(repo, "always-ok", "#!/bin/sh\necho ok\nexit 0\n")
+        writeConfig(repo, alwaysOk)
+        commitFixtureSetup(repo)
+
+        val reviewAgent = mockk<CodeReviewAgent>()
+        every { reviewAgent.review(any(), any()) } returnsMany listOf(
+            ReviewResult(blockingIssues = listOf("Missing .gitignore")),
+            ReviewResult(),
+        )
+
+        val summary = realEngine(writingAgentAdapter(), reviewAgent).run(repo)
+
+        summary.results.shouldHaveSize(1)
+        summary.results.first().status shouldBe StoryStatus.DONE
+        verify(exactly = 2) { reviewAgent.review(any(), any()) }
+        gitLogSubjects(repo).first() shouldBe "feat(ADO-001): first story"
     }
 
     test("skips code review when review.enabled is false in real configuration") {

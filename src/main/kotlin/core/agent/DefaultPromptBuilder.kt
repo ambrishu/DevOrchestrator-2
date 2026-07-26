@@ -40,6 +40,17 @@ class DefaultPromptBuilder : PromptBuilder {
             appendLine("Fix only this failure. Do not make unrelated changes.")
         }
 
+        context.reviewFeedback?.let { findings ->
+            appendLine()
+            appendLine("Previous Code Review Findings:")
+            if (findings.isEmpty()) {
+                appendLine("(no specific finding lines captured)")
+            } else {
+                findings.forEach { appendLine("- $it") }
+            }
+            appendLine("Fix only these findings. Do not make unrelated changes.")
+        }
+
         if (context.prdExcerpts.isNotEmpty()) {
             appendLine()
             appendLine("Product Requirements:")
