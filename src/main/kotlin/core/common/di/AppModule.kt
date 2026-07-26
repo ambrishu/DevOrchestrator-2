@@ -3,6 +3,7 @@ package core.common.di
 import adapters.claude.ClaudeCodeAdapter
 import adapters.claude.ClaudeCodeInvoker
 import adapters.claude.ClaudeCodeReviewAgent
+import adapters.claude.ClaudeCodeTaskGenerator
 import core.agent.AgentAdapter
 import core.agent.DefaultPromptBuilder
 import core.agent.PromptBuilder
@@ -47,6 +48,11 @@ import core.repository.RepositoryLoader
 import core.review.CodeReviewAgent
 import core.review.DefaultReviewPromptBuilder
 import core.review.ReviewPromptBuilder
+import core.tasks.DefaultTaskGenerationPromptBuilder
+import core.tasks.FileTaskGenerationCacheStore
+import core.tasks.TaskGenerationCacheStore
+import core.tasks.TaskGenerationPromptBuilder
+import core.tasks.TaskGenerator
 import core.validation.DefaultQualityGateEngine
 import core.validation.QualityGateEngine
 import org.koin.dsl.module
@@ -97,6 +103,17 @@ val appModule = module {
 
     single<GitManager> { DefaultGitManager(processExecutor = get()) }
     single<CommitMessageFormatter> { DefaultCommitMessageFormatter() }
+
+    single<TaskGenerationPromptBuilder> { DefaultTaskGenerationPromptBuilder() }
+    single<TaskGenerationCacheStore> { FileTaskGenerationCacheStore() }
+    single<TaskGenerator> {
+        ClaudeCodeTaskGenerator(
+            documentationLoader = get(),
+            promptBuilder = get(),
+            invoker = ClaudeCodeInvoker(processExecutor = get()),
+            cacheStore = get(),
+        )
+    }
 
     single<ReviewPromptBuilder> { DefaultReviewPromptBuilder() }
     single<CodeReviewAgent> {

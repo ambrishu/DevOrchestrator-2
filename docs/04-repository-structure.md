@@ -35,6 +35,7 @@ ado/
 ├── .ado/
 │   ├── config.yaml
 │   ├── progress.yaml
+│   ├── task-generation-cache.yaml
 │   └── runtime/
 │
 ├── src/
@@ -53,6 +54,7 @@ ado/
 │   │   ├── review/
 │   │   ├── git/
 │   │   ├── progress/
+│   │   ├── tasks/
 │   │   ├── configuration/
 │   │   └── common/
 │   │
@@ -126,6 +128,8 @@ ADO maintains runtime state separately from source code.
 config.yaml
 
 progress.yaml
+
+task-generation-cache.yaml
 
 runtime/
 
@@ -216,6 +220,8 @@ review/
 git/
 
 progress/
+
+tasks/
 
 configuration/
 
@@ -389,7 +395,25 @@ Responsibilities:
 
 ---
 
-# 18. Configuration Module
+# 18. Tasks Module
+
+```
+core/tasks/
+```
+
+Responsibilities:
+
+- generate `docs/TASKS.md` from planning documents
+- validate generated content before it is written
+- cache generation by a hash of the input documents
+
+Produces:
+
+- Task Generation Result
+
+---
+
+# 19. Configuration Module
 
 ```
 core/configuration/
@@ -403,7 +427,7 @@ Responsibilities:
 
 ---
 
-# 19. Common Module
+# 20. Common Module
 
 ```
 core/common/
@@ -420,7 +444,7 @@ Business logic should not accumulate here.
 
 ---
 
-# 20. Adapter Module
+# 21. Adapter Module
 
 ```
 src/adapters/
@@ -444,7 +468,7 @@ No adapter depends on another adapter.
 
 ---
 
-# 21. Models
+# 22. Models
 
 ```
 src/models/
@@ -460,12 +484,14 @@ Examples:
 - ReviewResult
 - ProgressState
 - Configuration
+- TaskGenerationResult
+- TaskGenerationCache
 
 Models should remain immutable whenever possible.
 
 ---
 
-# 22. Utilities
+# 23. Utilities
 
 ```
 src/utils/
@@ -484,7 +510,7 @@ Utilities must not contain orchestration logic.
 
 ---
 
-# 23. Tests
+# 24. Tests
 
 ```
 tests/
@@ -512,7 +538,7 @@ integration/
 
 ---
 
-# 24. Scripts
+# 25. Scripts
 
 ```
 scripts/
@@ -531,7 +557,7 @@ Scripts are not part of runtime execution.
 
 ---
 
-# 25. Examples
+# 26. Examples
 
 ```
 examples/
@@ -549,7 +575,7 @@ Useful for testing and onboarding.
 
 ---
 
-# 26. Dependency Rules
+# 27. Dependency Rules
 
 Dependencies flow inward.
 
@@ -580,7 +606,7 @@ Rules:
 
 ---
 
-# 27. Naming Conventions
+# 28. Naming Conventions
 
 Directories use lowercase.
 
@@ -614,12 +640,14 @@ progress.yaml
 
 ---
 
-# 28. Generated Files
+# 29. Generated Files
 
 The following files are generated during execution:
 
 ```
 .ado/progress.yaml
+
+.ado/task-generation-cache.yaml
 
 .ado/runtime/
 
@@ -634,7 +662,7 @@ Generated files should never contain source code.
 
 ---
 
-# 29. Repository Principles
+# 30. Repository Principles
 
 The repository follows these principles:
 
@@ -651,7 +679,7 @@ Every source file should have a clearly defined responsibility.
 
 ---
 
-# 30. Summary
+# 31. Summary
 
 The ADO repository is organized around orchestration capabilities rather than technical layers. Each module owns a single business responsibility, allowing AI coding agents to navigate, modify, and extend the project predictably.
 

@@ -136,6 +136,7 @@ The ADO architecture consists of three logical layers.
 | Code Review Agent                                    |
 | Git Manager                                          |
 | Progress Tracker                                     |
+| Task Generator                                       |
 +------------------------------------------------------+
 
                      │
@@ -354,6 +355,37 @@ Supported story states:
 - done
 
 The Progress Tracker persists state between executions.
+
+---
+
+## 6.11 Task Generator
+
+### Responsibility
+
+Generates `docs/TASKS.md` from a repository's planning documents, so a project can bootstrap its
+own backlog instead of requiring one to be hand-written.
+
+Unlike the other orchestration-layer components, the Task Generator is not part of the per-story
+execution chain — it runs once, independently, before a backlog exists at all.
+
+### Inputs
+
+- AI Engineering Spec
+- Product Requirements
+- System Architecture
+- Task generation cache (hash of the above three documents)
+
+### Outputs
+
+- `docs/TASKS.md`, written only after validating it against the same grammar the Story Planner parses
+
+The Task Generator never lets the AI agent write `docs/TASKS.md` directly. It runs the agent in a
+read-only session, parses and validates the returned markdown itself, and only then writes the
+file — guaranteeing the backlog every other component reads is always loadable.
+
+Generation is cached by a hash of the three input documents. Unchanged documents reproduce the
+exact same output without invoking the agent again; only a document change, or an explicit
+regenerate request, triggers a fresh invocation.
 
 ---
 

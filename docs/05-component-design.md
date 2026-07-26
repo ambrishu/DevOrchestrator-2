@@ -53,6 +53,9 @@ Execution Engine
 
 The Execution Engine orchestrates all components.
 
+The Task Generator (§15) is not part of this chain: it is invoked directly via the CLI and runs
+once, before a backlog exists, rather than on every story.
+
 ---
 
 # 3. Component Interaction
@@ -684,7 +687,107 @@ All orchestration components.
 
 ---
 
-# 15. Shared Models
+# 15. Task Generator
+
+## Responsibility
+
+Generate `docs/TASKS.md` from a repository's planning documents.
+
+Invoked directly via the CLI (`ado tasks generate`), independently of the Execution Engine — it
+runs once, before a backlog exists, rather than as part of the per-story workflow.
+
+---
+
+## Inputs
+
+- AI Engineering Spec
+- Product Requirements
+- System Architecture
+
+---
+
+## Outputs
+
+```
+docs/TASKS.md
+```
+
+---
+
+## Public Interface
+
+```
+generate(repositoryPath, force, regenerate)
+```
+
+---
+
+## Workflow
+
+```
+Load Planning Documents
+
+↓
+
+Hash Documents
+
+↓
+
+Cache Hit?
+
+┌───────────────┐
+│               │
+▼               ▼
+
+Yes             No
+│               │
+│        Invoke Agent (read-only)
+│               │
+│               ▼
+│        Validate Against Backlog Grammar
+│               │
+│               ▼
+│        Save To Cache
+│               │
+└───────────────┘
+
+↓
+
+Write docs/TASKS.md (unless content already matches what's on disk)
+```
+
+---
+
+## Caching
+
+Generation is keyed by a hash of the three input documents.
+
+Unchanged documents reproduce the exact same output without invoking the agent again; only a
+document change or an explicit regenerate request triggers a fresh invocation.
+
+---
+
+## Dependencies
+
+- Documentation Loader
+
+---
+
+## Error Handling
+
+Throws
+
+```
+TaskGenerationException
+```
+
+when a required document is missing, the agent cannot be invoked, the generated backlog fails to
+parse, or an existing backlog with different content would be overwritten without an explicit
+force flag.
+
+---
+
+# 16. Shared Models
 
 Core models include
 
@@ -710,13 +813,17 @@ CommitResult
 ProgressState
 
 Configuration
+
+TaskGenerationResult
+
+TaskGenerationCache
 ```
 
 These models are immutable wherever possible.
 
 ---
 
-# 16. Error Model
+# 17. Error Model
 
 Each component returns structured errors.
 
@@ -736,6 +843,8 @@ QualityGateException
 ReviewFailureException
 
 GitOperationException
+
+TaskGenerationException
 ```
 
 Components never terminate the workflow directly.
@@ -744,7 +853,7 @@ Errors are returned to the Execution Engine.
 
 ---
 
-# 17. Dependency Graph
+# 18. Dependency Graph
 
 ```
 CLI
@@ -796,9 +905,12 @@ Progress Tracker
 
 Dependencies always flow downward.
 
+The Task Generator sits outside this chain: it depends only on the Documentation Loader and is
+invoked directly by the CLI.
+
 ---
 
-# 18. Extension Strategy
+# 19. Extension Strategy
 
 The architecture supports future extensions through interfaces.
 
@@ -814,7 +926,7 @@ These extensions should not require changes to the Execution Engine.
 
 ---
 
-# 19. Design Principles
+# 20. Design Principles
 
 Every component shall:
 
@@ -827,7 +939,7 @@ Every component shall:
 
 ---
 
-# 20. Summary
+# 21. Summary
 
 The component design decomposes ADO into small, focused, and independently testable modules coordinated by the Execution Engine.
 

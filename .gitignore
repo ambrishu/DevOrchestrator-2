@@ -10,3 +10,4 @@
 
 .ado/runtime/
 .ado/progress.yaml
+.ado/task-generation-cache.yaml

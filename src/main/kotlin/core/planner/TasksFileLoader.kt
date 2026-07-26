@@ -28,20 +28,7 @@ class TasksFileLoader(
         }
 
         val stories = parser.parse(content)
-        validateDependencyGraph(stories)
+        DependencyGraphValidator.validate(stories)
         return stories
-    }
-
-    private fun validateDependencyGraph(stories: List<Story>) {
-        val knownIds = stories.map { it.id }.toSet()
-        val missing = stories
-            .flatMap { story -> story.dependencies.filterNot { it in knownIds }.map { story.id to it } }
-
-        if (missing.isNotEmpty()) {
-            val details = missing.joinToString("\n") { (storyId, dependencyId) ->
-                "  - $storyId depends on unknown story $dependencyId"
-            }
-            throw StoryLoadException("Invalid dependency graph:\n$details")
-        }
     }
 }
